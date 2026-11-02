@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "МЫ РЯДОМ — пространство поддержки",
+  "short_name": "МЫ РЯДОМ",
+  "description": "Образовательное пространство безопасности, уважения и поддержки в школе.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f8fb",
+  "theme_color": "#172b4d",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
