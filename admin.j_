@@ -1,0 +1,30 @@
+(() => {
+'use strict';
+const KEY='myryadom-admin-calendar-v1';
+const defaults=[
+['sep','Сентябрь','Безопасная среда и общие правила','Согласовать с классом понятные правила уважительного общения; определить взрослых, к которым можно обратиться.'],
+['oct','Октябрь','Личные границы и согласие','Обсудить право отказаться, уважение телесных и цифровых границ.'],
+['nov','Ноябрь','Конфликт, агрессия и травля','Разобрать различия на нейтральных примерах; подчеркнуть, что единичные угрозы и насилие тоже требуют реакции.'],
+['dec','Декабрь','Эмоции и саморегуляция','Показать безопасные способы паузы; не подменять ими вмешательство взрослых.'],
+['jan','Январь','Роль свидетеля','Отработать безопасную поддержку, отказ от пересылки унизительного контента и обращение к взрослому.'],
+['feb','Февраль','Цифровая безопасность','Обсудить чаты, приватность, скриншоты и правила обращения за помощью.'],
+['mar','Март','Слова и последствия','Разобрать влияние шуток, прозвищ, слухов и публичного унижения.'],
+['apr','Апрель','Ответственность и прекращение вреда','Обсудить, как остановить вредное поведение и почему извинение не обязывает пострадавшего к примирению.'],
+['may','Май','Маршруты помощи и итоги','Повторить контакты взрослых и служб; собрать анонимную обратную связь о школьных условиях без описания личных случаев.'],
+['year','В течение года','Повторная проверка безопасности','Проверять, прекратился ли вред и нет ли ответного давления; корректировать меры по установленному порядку школы.']
+].map(([id,month,title,description])=>({id,month,title,description}));
+const $=id=>document.getElementById(id);let items=load(),editing=null;
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(Array.isArray(v)&&v.every(valid))return v;}catch(e){}return defaults.map(x=>({...x}));}
+function valid(x){return x&&typeof x.id==='string'&&typeof x.month==='string'&&typeof x.title==='string'&&typeof x.description==='string';}
+function persist(){localStorage.setItem(KEY,JSON.stringify(items));render();}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){ $('eventCount').textContent=`${items.length} ${items.length===1?'пункт':items.length<5?'пункта':'пунктов'}`; $('eventList').innerHTML=items.length?items.map((x,i)=>`<article class="admin-item"><div><b>${i+1}. ${esc(x.month)} — ${esc(x.title)}</b><p>${esc(x.description)}</p></div><div class="admin-actions"><button type="button" class="ghost" data-edit="${esc(x.id)}">Изменить</button><button type="button" class="ghost" data-delete="${esc(x.id)}">Удалить</button></div></article>`).join(''):'<p class="admin-muted">Пока нет пунктов. Добавь первый с помощью формы выше.</p>';document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>edit(b.dataset.edit));document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>remove(b.dataset.delete));}
+function resetForm(){editing=null;$('eventForm').reset();$('formTitle').textContent='Добавить пункт календаря';$('saveEvent').textContent='Добавить в календарь';$('cancelEdit').hidden=true;}
+function edit(id){const x=items.find(v=>v.id===id);if(!x)return;editing=id;$('eventMonth').value=x.month;$('eventName').value=x.title;$('eventDescription').value=x.description;$('formTitle').textContent='Редактировать пункт';$('saveEvent').textContent='Сохранить изменения';$('cancelEdit').hidden=false;window.scrollTo({top:0,behavior:'smooth'});}
+function remove(id){const x=items.find(v=>v.id===id);if(!x||!confirm(`Удалить пункт «${x.title}»?`))return;items=items.filter(v=>v.id!==id);persist();$('formStatus').textContent='Пункт удалён.';}
+$('eventForm').addEventListener('submit',e=>{e.preventDefault();const month=$('eventMonth').value.trim(),title=$('eventName').value.trim(),description=$('eventDescription').value.trim();if(!month||!title||!description)return;if(editing){const x=items.find(v=>v.id===editing);if(x)Object.assign(x,{month,title,description});$('formStatus').textContent='Изменения сохранены.';}else{items.push({id:`event-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,month,title,description});$('formStatus').textContent='Пункт добавлен в календарь.';}persist();resetForm();});
+$('cancelEdit').onclick=resetForm;
+$('exportData').onclick=()=>{const blob=new Blob([JSON.stringify({app:'МЫ РЯДОМ',schema:1,exportedAt:new Date().toISOString(),calendar:items},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='my-ryadom-calendar-backup.json';a.click();URL.revokeObjectURL(url);$('backupStatus').textContent='Резервная копия подготовлена.';};
+$('importFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.calendar)||!data.calendar.every(valid)||data.calendar.length>100)throw new Error('Некорректная структура');if(!confirm('Импорт заменит текущий календарь. Продолжить?'))return;items=data.calendar.map(x=>({id:String(x.id),month:x.month.trim(),title:x.title.trim(),description:x.description.trim()}));persist();$('backupStatus').textContent='Календарь успешно импортирован.';}catch(err){$('backupStatus').textContent='Не удалось импортировать файл. Проверь JSON-резервную копию.';}finally{e.target.value='';}});
+render();
+})();
