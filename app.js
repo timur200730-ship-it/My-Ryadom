@@ -3,7 +3,7 @@ const ageInfo={
  middle:{label:'11–14 лет',text:'Ситуации общения, группового давления и цифровой среды.',style:'Разбираем отношения в группе, границы, давление сверстников и безопасные способы действовать.'},
  senior:{label:'15–18 лет',text:'Сложные ситуации, ответственность, цифровые следы и роль свидетеля.',style:'Разбираем влияние группы, ответственность, поддержку и алгоритмы обращения за помощью.'}
 };
-const topics=[
+let topics=[
  {title:'Безопасная школа',desc:'Право каждого на уважение и безопасность.',
  junior:['В классе каждый человек имеет право учиться и играть без страха. Никого нельзя обзывать, толкать или специально оставлять одного.','Безопасность — это не только отсутствие драки. Важно, чтобы слова и поступки не унижали и не пугали.','Уважение не означает, что все должны дружить. Можно не быть друзьями, но нельзя преследовать и унижать.'],
  middle:['Безопасная среда строится на уважении, понятных правилах и реакции взрослых. Несогласие допустимо, унижение — нет.','Школьная безопасность включает физическую, психологическую и цифровую среду. Вред может происходить и в классе, и в общем чате.','Личные симпатии нельзя навязать. Но каждый отвечает за то, чтобы не поддерживать травлю и не лишать другого безопасности.'],
@@ -101,6 +101,16 @@ const topics=[
  options:[['Да','Нет, но уважать друг друга обязательно','Только на переменах'],['Да','Нет, нужно беречь приватность','Если история известная'],['Количество лайков','Популярность класса','Безопасность, уважение и своевременная помощь']],correct:1,
  feedback:'Безопасный класс — это общие правила, уважение приватности и взрослые, которые реально реагируют на вред.'}
 ];
+// Дополнительные учебные темы из локальной панели управления.
+try {
+ const extra=JSON.parse(localStorage.getItem('myryadom-admin-lessons-v1')||'[]');
+ if(Array.isArray(extra)&&extra.length<=50){
+  extra.forEach(x=>{
+   if(!x||typeof x.title!=='string'||typeof x.desc!=='string'||!['junior','middle','senior'].every(a=>Array.isArray(x[a])&&x[a].length&&x[a].every(v=>typeof v==='string'))||!x.task||!x.quiz||!Array.isArray(x.options)||x.options.length<2||!Number.isInteger(x.correct)||x.correct<0||x.correct>=x.options.length||typeof x.feedback!=='string')return;
+   topics.push({...x,task:[x.task.junior,x.task.middle,x.task.senior],quiz:[x.quiz.junior,x.quiz.middle,x.quiz.senior],options:[x.options,x.options,x.options]});
+  });
+ }
+} catch(e) { console.warn('Дополнительная программа недоступна',e); }
 const cases=[
  {title:'Прозвище, которое повторяют',story:'Несколько ребят каждую неделю называют одноклассника обидным прозвищем. Он просил прекратить, но это продолжается.',opts:['Это просто шутка','Нужно рассказать взрослому и попросить помочь остановить происходящее','Посоветовать ему не обращать внимания'],right:1,why:'Повторяющиеся унижения, особенно когда человеку трудно остановить их самому, могут быть признаками травли. Нужны помощь взрослого и меры безопасности.'},
  {title:'Один раз толкнули',story:'На перемене ученик сильно толкнул другого, тот упал и ударился. Раньше такого не замечали.',opts:['Раз раньше не было, ничего делать не нужно','Нужно сразу позвать взрослого и проверить состояние пострадавшего','Предложить разобраться дракой'],right:1,why:'Даже единичное физическое насилие требует реакции. Не нужно ждать повторения, чтобы позвать взрослого и обеспечить помощь.'},
@@ -118,24 +128,27 @@ function page(id){document.querySelectorAll('.page').forEach(x=>x.classList.togg
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>page(b.dataset.page));
 document.querySelectorAll('[data-age]').forEach(b=>b.onclick=()=>{age=b.dataset.age;document.querySelectorAll('[data-age]').forEach(x=>x.classList.toggle('chosen',x===b));$('#ageText').textContent=ageInfo[age].text;render();});
 function render(){const total=topics.length*3;const count=done.length;$('#progress').textContent=`Изучено ${count} из ${total} возрастных модулей`;$('#bar').style.width=(count/total*100)+'%';const cards=topics.map((t,i)=>{const key=`${age}-${i}`;return `<button class="module" data-m="${i}"><small>ТЕМА ${String(i+1).padStart(2,'0')} · ${ageInfo[age].label}</small><b>${t.title}</b><p>${t.desc}</p><small>${done.includes(key)?'✓ Изучено':'Открыть тему →'}</small></button>`;}).join('');$('#moduleGrid').innerHTML=cards;$('#homeModules').innerHTML=topics.slice(0,3).map((t,i)=>`<button class="module" data-m="${i}"><small>ТЕМА ${i+1}</small><b>${t.title}</b><p>${t.desc}</p></button>`).join('');document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>openModule(+b.dataset.m));$('#cases').innerHTML=cases.map((c,i)=>`<button class="module" data-c="${i}"><small>СИТУАЦИЯ ${i+1}</small><b>${c.title}</b><p>${c.story}</p></button>`).join('');document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>openCase(+b.dataset.c));}
-function openModule(i){const t=topics[i],level=age==='junior'?0:age==='middle'?1:2,key=`${age}-${i}`;const points=t[age].map(p=>`<li>${p}</li>`).join('');$('#scenarioContent').innerHTML=`<small>ТЕМА ${i+1} · ${ageInfo[age].label}</small><h2>${t.title}</h2><p class="lead">${t.desc}</p><p class="source-note">${ageInfo[age].style}</p><h3>Разберём тему</h3><ol class="lesson-points">${points}</ol><div class="notice"><b>Небольшое задание</b><p>${t.task[level]}</p><p class="source-note">Можно подумать или обсудить со взрослым. Не нужно вводить личные истории в приложение.</p></div><h3>Проверь себя</h3><p>${t.quiz[level]}</p>${t.options[level].map((o,j)=>`<button class="choice" data-answer="${j}">${o}</button>`).join('')}<div id="feedback" aria-live="polite"></div><button id="complete">${done.includes(key)?'Тема уже отмечена':'Отметить тему изученной'}</button>`;document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-answer]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#feedback').innerHTML=`<div class="feedback"><b>${+b.dataset.answer===t.correct?'Верно!':'Давай разберёмся.'}</b><p>${t.feedback}</p></div>`;});$('#complete').onclick=()=>{if(!done.includes(key)){done.push(key);localStorage.setItem('myryadom-done-v2',JSON.stringify(done));}render();$('#complete').textContent='Тема отмечена на этом устройстве';};page('scenario');}
+function openModule(i){const t=topics[i],level=age==='junior'?0:age==='middle'?1:2,key=`${age}-${i}`;const points=t[age].map(p=>`<li>${escHtml(p)}</li>`).join('');$('#scenarioContent').innerHTML=`<small>ТЕМА ${i+1} · ${ageInfo[age].label}</small><h2>${escHtml(t.title)}</h2><p class="lead">${escHtml(t.desc)}</p><p class="source-note">${ageInfo[age].style}</p><h3>Разберём тему</h3><ol class="lesson-points">${points}</ol><div class="notice"><b>Небольшое задание</b><p>${escHtml(t.task[level])}</p><p class="source-note">Можно подумать или обсудить со взрослым. Не нужно вводить личные истории в приложение.</p></div><h3>Проверь себя</h3><p>${escHtml(t.quiz[level])}</p>${(Array.isArray(t.options[level])?t.options[level]:t.options).map((o,j)=>`<button class="choice" data-answer="${j}">${escHtml(o)}</button>`).join('')}<div id="feedback" aria-live="polite"></div><button id="complete">${done.includes(key)?'Тема уже отмечена':'Отметить тему изученной'}</button>`;document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-answer]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#feedback').innerHTML=`<div class="feedback"><b>${+b.dataset.answer===t.correct?'Верно!':'Давай разберёмся.'}</b><p>${escHtml(t.feedback)}</p></div>`;});$('#complete').onclick=()=>{if(!done.includes(key)){done.push(key);localStorage.setItem('myryadom-done-v2',JSON.stringify(done));}render();$('#complete').textContent='Тема отмечена на этом устройстве';};page('scenario');}
 function openCase(i){const c=cases[i];$('#scenarioContent').innerHTML=`<small>ИНТЕРАКТИВНАЯ СИТУАЦИЯ</small><h2>${c.title}</h2><p class="lead">${c.story}</p><h3>Какой вариант безопаснее?</h3>${c.opts.map((o,j)=>`<button class="choice" data-case="${j}">${o}</button>`).join('')}<div id="feedback" aria-live="polite"></div><p class="source-note">Это учебный пример. Если похожее происходит в реальности, обратись к безопасному взрослому.</p>`;document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-case]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#feedback').innerHTML=`<div class="feedback"><b>${+b.dataset.case===c.right?'Хороший выбор.':'Разберём безопасный вариант.'}</b><p>${c.why}</p></div>`;});page('scenario');}
 const adults={parents:['Для родителей','Выслушайте спокойно, не обвиняйте и скажите: «Спасибо, что рассказал. Я помогу». Уточните, есть ли непосредственная опасность. Не устраивайте допрос и не обещайте абсолютную тайну, если для защиты ребёнка нужно подключить других взрослых. Запишите конкретные факты, согласуйте контакт со школой, попросите понятный план мер безопасности и срок повторной проверки. Следите, не возникло ли давление за обращение.'],teachers:['Для педагогов','Сначала остановите опасное поведение и обеспечьте безопасность. Не проводите публичное выяснение и не требуйте немедленного примирения. Спокойно выслушайте ребёнка, зафиксируйте сообщённые факты в установленном школой порядке, передайте информацию ответственным сотрудникам и действуйте по актуальным нормативным и локальным документам. Определите, кто и как проверит отсутствие повторения и ответного давления.'],specialists:['Для специалистов','Разделяйте профилактику, оценку ситуации и реагирование. Не ставьте диагнозов и не присваивайте детям ярлыки. Не навязывайте медиацию при продолжающейся травле или дисбалансе сил. Оцените непосредственные риски, согласуйте меры защиты и поддержку участников в пределах компетенции, соблюдайте конфиденциальность и правила передачи информации. Проверяйте устойчивость изменений.'],school:['План работы школы','Предлагаемый ритм — одно занятие в месяц в течение учебного года. Темы: безопасная среда и правила общения; личные границы; различие конфликта и травли; эмоциональная саморегуляция; роль свидетеля; безопасность в интернете; влияние слов; ответственность и прекращение вреда; маршруты помощи; оценка школьных условий. Полный календарь, сценарии и памятка для родителей доступны в разделе «О проекте» → «Материалы для школы». Это проектная основа, которую необходимо адаптировать и согласовать внутри образовательной организации.']};
 function schoolCabinet(){
- const months=[
-  ['Сентябрь','Безопасная среда и общие правила','Согласовать с классом понятные правила уважительного общения; определить взрослых, к которым можно обратиться.'],
-  ['Октябрь','Личные границы и согласие','Обсудить право отказаться, уважение телесных и цифровых границ.'],
-  ['Ноябрь','Конфликт, агрессия и травля','Разобрать различия на нейтральных примерах; подчеркнуть, что единичные угрозы и насилие тоже требуют реакции.'],
-  ['Декабрь','Эмоции и саморегуляция','Показать безопасные способы паузы; не подменять ими вмешательство взрослых.'],
-  ['Январь','Роль свидетеля','Отработать безопасную поддержку, отказ от пересылки унизительного контента и обращение к взрослому.'],
-  ['Февраль','Цифровая безопасность','Обсудить чаты, приватность, скриншоты и правила обращения за помощью.'],
-  ['Март','Слова и последствия','Разобрать влияние шуток, прозвищ, слухов и публичного унижения.'],
-  ['Апрель','Ответственность и прекращение вреда','Обсудить, как остановить вредное поведение и почему извинение не обязывает пострадавшего к примирению.'],
-  ['Май','Маршруты помощи и итоги','Повторить контакты взрослых и служб; собрать анонимную обратную связь о школьных условиях без описания личных случаев.'],
-  ['В течение года','Повторная проверка безопасности','Проверять, прекратился ли вред и нет ли ответного давления; корректировать меры по установленному порядку школы.']
+ $('#adultText').classList.add('cabinet-view');
+ const defaultMonths=[
+  ['sep','Сентябрь','Безопасная среда и общие правила','Согласовать с классом понятные правила уважительного общения; определить взрослых, к которым можно обратиться.'],
+  ['oct','Октябрь','Личные границы и согласие','Обсудить право отказаться, уважение телесных и цифровых границ.'],
+  ['nov','Ноябрь','Конфликт, агрессия и травля','Разобрать различия на нейтральных примерах; подчеркнуть, что единичные угрозы и насилие тоже требуют реакции.'],
+  ['dec','Декабрь','Эмоции и саморегуляция','Показать безопасные способы паузы; не подменять ими вмешательство взрослых.'],
+  ['jan','Январь','Роль свидетеля','Отработать безопасную поддержку, отказ от пересылки унизительного контента и обращение к взрослому.'],
+  ['feb','Февраль','Цифровая безопасность','Обсудить чаты, приватность, скриншоты и правила обращения за помощью.'],
+  ['mar','Март','Слова и последствия','Разобрать влияние шуток, прозвищ, слухов и публичного унижения.'],
+  ['apr','Апрель','Ответственность и прекращение вреда','Обсудить, как остановить вредное поведение и почему извинение не обязывает пострадавшего к примирению.'],
+  ['may','Май','Маршруты помощи и итоги','Повторить контакты взрослых и служб; собрать анонимную обратную связь о школьных условиях без описания личных случаев.'],
+  ['year','В течение года','Повторная проверка безопасности','Проверять, прекратился ли вред и нет ли ответного давления; корректировать меры по установленному порядку школы.']
  ];
+ let months=defaultMonths.map(([id,...rest])=>({id,month:rest[0],title:rest[1],description:rest[2]}));
+ try{const custom=JSON.parse(localStorage.getItem('myryadom-admin-calendar-v1')||'null');if(Array.isArray(custom))months=custom;}catch(e){}
  const saved=JSON.parse(localStorage.getItem('myryadom-school-check-v1')||'{}');
- const rows=months.map((m,i)=>`<article class="calendar-item ${saved[i]?'is-done':''}"><label class="calendar-check"><input type="checkbox" data-school-check="${i}" ${saved[i]?'checked':''}><span class="calendar-status">${saved[i]?'Проведено':'Отметить выполнение'}</span></label><div class="calendar-copy"><span class="calendar-month">${m[0]}</span><b>${m[1]}</b><p>${m[2]}</p></div></article>`).join('');
+ const rows=months.map(m=>`<article class="calendar-item ${saved[m.id]?'is-done':''}"><label class="calendar-check"><input type="checkbox" data-school-check="${m.id}" ${saved[m.id]?'checked':''}><span class="calendar-status">${saved[m.id]?'Проведено':'Отметить выполнение'}</span></label><div class="calendar-copy"><span class="calendar-month">${m.month}</span><b>${m.title}</b><p>${m.description}</p></div></article>`).join('');
  $('#adultText').innerHTML=`<div class="cabinet-head"><span class="kicker">РАБОЧЕЕ ПРОСТРАНСТВО ШКОЛЫ</span><h2>Планирование и профилактика</h2><p>План на учебный год. Отмечайте только проведение мероприятий — не записывайте имена, диагнозы и подробности случаев.</p></div><div class="panel calendar-panel"><div class="calendar-heading"><div><h3>Календарь учебного года</h3><p class="source-note">Отметки сохраняются только в браузере этого устройства.</p></div><div class="calendar-counter"><strong id="schoolDoneCount">${Object.values(saved).filter(Boolean).length}</strong><span>из ${months.length}</span></div></div><div class="calendar-progress"><i style="width:${Object.values(saved).filter(Boolean).length/months.length*100}%"></i></div><div class="calendar-list">${rows}</div><button id="clearSchoolChecks" class="ghost reset-calendar">Сбросить отметки</button></div><div class="panel"><h3>Подготовка к занятию</h3><ol class="lesson-points"><li>Выберите возрастную группу и цель занятия.</li><li>Проверьте, что примеры вымышленные и не указывают на конкретных учеников.</li><li>Заранее определите взрослого, к которому ребёнок сможет обратиться после занятия.</li><li>Объясните правила: не называем имён, не обсуждаем чужие истории, можно не отвечать на личный вопрос.</li><li>Подготовьте спокойный способ завершить обсуждение и напомните маршрут помощи.</li></ol><p><b>Рекомендуемая структура 40 минут:</b> 5 минут — правила безопасности; 7 минут — вводная история; 12 минут — разбор; 10 минут — упражнение; 4 минуты — выводы; 2 минуты — куда обратиться.</p></div><div class="panel"><h3>Алгоритм при сообщении ребёнка о травле или насилии</h3><ol class="lesson-points"><li><b>Обеспечить безопасность.</b> При непосредственной опасности немедленно действовать по экстренному и школьному порядку.</li><li><b>Выслушать спокойно.</b> Поблагодарить за доверие, не обвинять и не обещать абсолютную тайну.</li><li><b>Уточнить только необходимое.</b> Есть ли опасность сейчас? Нужна ли медицинская помощь? Кто может обеспечить безопасность?</li><li><b>Зафиксировать и передать сведения.</b> Действовать по утверждённому локальному порядку и требованиям законодательства о персональных данных.</li><li><b>Организовать меры защиты.</b> Назначить ответственных взрослых, определить конкретные меры и срок проверки.</li><li><b>Проверить результат.</b> Убедиться, что вред прекратился и нет ответного давления или преследования.</li></ol><div class="notice"><b>Не делать</b><p>Не устраивать публичное выяснение, не обвинять ребёнка, не требовать немедленного примирения, не проводить принудительную медиацию при продолжающейся травле или дисбалансе сил, не обещать, что «всё останется между нами».</p></div></div><div class="panel"><h3>Ненавязчивая оценка школьной среды</h3><p>Обсуждайте условия, а не «проблемных детей». Можно использовать анонимный опрос, организованный школой по утверждённым правилам:</p><ul class="lesson-points"><li>Знают ли учащиеся, к кому обратиться?</li><li>Понимают ли взрослые единый порядок реагирования?</li><li>Есть ли места и время, где детям особенно некомфортно или небезопасно?</li><li>Проверяется ли, прекратилось ли повторяющееся вредное поведение?</li><li>Есть ли понятная коммуникация с родителями?</li></ul><p class="source-note">Не собирайте через приложение имена, индивидуальные истории, свободные описания случаев, сведения о здоровье или другие персональные данные. Для реального реагирования используйте официальные школьные процедуры.</p></div><div class="notice"><b>Перед применением</b><p>Этот кабинет — организационная памятка, а не локальный нормативный акт и не юридическая инструкция. Руководитель школы должен назначить ответственных, сверить действующие федеральные и региональные требования, локальные акты и маршруты взаимодействия с компетентными службами.</p></div>`;
  document.querySelectorAll('[data-school-check]').forEach(el=>el.addEventListener('change',()=>{const data=JSON.parse(localStorage.getItem('myryadom-school-check-v1')||'{}');data[el.dataset.schoolCheck]=el.checked;localStorage.setItem('myryadom-school-check-v1',JSON.stringify(data));const card=el.closest('.calendar-item');card.classList.toggle('is-done',el.checked);card.querySelector('.calendar-status').textContent=el.checked?'Проведено':'Отметить выполнение';const count=Object.values(data).filter(Boolean).length;$('#schoolDoneCount').textContent=count;$('.calendar-progress i').style.width=(count/months.length*100)+'%';}));
  $('#clearSchoolChecks').onclick=()=>{if(confirm('Сбросить отметки профилактических мероприятий на этом устройстве?')){localStorage.removeItem('myryadom-school-check-v1');schoolCabinet();}};
@@ -152,28 +165,64 @@ const specialistPanels={
  <div class="panel"><h3>3. Мониторинг реализации</h3><ul class="lesson-points"><li>Отслеживать только организационные показатели: занятия проведены, сотрудники обучены, маршруты помощи доступны, материалы обновлены.</li><li>Оценивать школьную среду по одобренным инструментам и в соответствии с правилами обработки данных.</li><li>Не составлять рейтинги детей, классов и педагогов на основе сообщений о травле.</li><li>Проверять не только факт реагирования, но и устойчивость результата: прекратилось ли вредное поведение и нет ли ответного давления.</li></ul></div>
  <div class="notice"><b>Критерий готовности школы</b><p>Каждый сотрудник знает, как принять сообщение, обеспечить безопасность и передать информацию ответственному лицу; ребёнок знает, к кому обратиться; школа проверяет, что меры реально работают.</p></div>`
 };
-function adult(k){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('chosen',x.dataset.tab===k));if(k==='cabinet'){schoolCabinet();return;}if(specialistPanels[k]){$('#adultText').innerHTML=specialistPanels[k]+'<p><b>Важно:</b> адаптируйте алгоритм к действующим нормативным документам и локальному порядку образовательной организации.</p>';return;}$('#adultText').innerHTML=`<h2>${adults[k][0]}</h2><p>${adults[k][1]}</p><p><b>Важно:</b> материалы приложения не заменяют действующие нормативные документы, локальный порядок школы и профессиональную оценку ситуации.</p>`;}
+function adult(k){$('#adultText').classList.remove('cabinet-view');document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('chosen',x.dataset.tab===k));if(k==='cabinet'){schoolCabinet();return;}if(specialistPanels[k]){$('#adultText').innerHTML=specialistPanels[k]+'<p><b>Важно:</b> адаптируйте алгоритм к действующим нормативным документам и локальному порядку образовательной организации.</p>';return;}$('#adultText').innerHTML=`<h2>${adults[k][0]}</h2><p>${adults[k][1]}</p><p><b>Важно:</b> материалы приложения не заменяют действующие нормативные документы, локальный порядок школы и профессиональную оценку ситуации.</p>`;}
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>adult(b.dataset.tab));adult('parents');
 $('#reset').onclick=()=>{if(confirm('Сбросить только учебный прогресс на этом устройстве?')){done=[];localStorage.removeItem('myryadom-done-v2');render();}};
 render();
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').hidden=false;});$('#install').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('#install').hidden=true;}};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').hidden=false;});$('#install').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('#install').hidden=true;}};window.addEventListener('appinstalled',()=>{$('#install').hidden=true;deferred=null;});
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 
 // Встроенный просмотр методических материалов без перехода на новую вкладку.
 const docViewer=document.getElementById('docViewer');
 function escHtml(v){return v.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function markdownToHtml(md){
- const lines=md.replace(/\r/g,'').split('\n');let out='',list=null;
- const inline=t=>escHtml(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\[(.+?)\]\((https?:\/\/[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
- for(const line of lines){const h=line.match(/^(#{1,3})\s+(.+)/);const li=line.match(/^\s*[-*]\s+(.+)/);const ol=line.match(/^\s*\d+[.)]\s+(.+)/);
-  if(h||li||ol||!line.trim()){if(list){out+=list==='ul'?'</ul>':'</ol>';list=null;}}
-  if(h){const n=h[1].length;out+=`<h${n}>${inline(h[2])}</h${n}>`;}
-  else if(li||ol){const typ=li?'ul':'ol';if(list!==typ){if(list)out+=list==='ul'?'</ul>':'</ol>';out+=typ==='ul'?'<ul>':'<ol>';list=typ;}out+=`<li>${inline((li||ol)[1])}</li>`;}
-  else if(!line.trim()){} else if(/^---+$/.test(line.trim()))out+='<hr>';else out+=`<p>${inline(line)}</p>`;
+ const lines=md.replace(/\r/g,'').split('\n');let out='',list=null,paragraph=[];
+ const inline=t=>escHtml(t)
+  .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+  .replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>')
+  .replace(/`([^`]+)`/g,'<code>$1</code>')
+  .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+ const closeList=()=>{if(list){out+=list==='ul'?'</ul>':'</ol>';list=null;}};
+ const flushParagraph=()=>{if(paragraph.length){out+=`<p>${inline(paragraph.join(' '))}</p>`;paragraph=[];}};
+ const isTableRow=l=>/^\s*\|.*\|\s*$/.test(l);
+ const cells=l=>l.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(x=>x.trim());
+ for(let i=0;i<lines.length;i++){
+  const line=lines[i],trim=line.trim();
+  const h=line.match(/^(#{1,4})\s+(.+)/),ul=line.match(/^\s*[-*+]\s+(.+)/),ol=line.match(/^\s*\d+[.)]\s+(.+)/),quote=line.match(/^\s*>\s?(.*)$/);
+  if(isTableRow(line)&&i+1<lines.length&&/^\s*\|?\s*:?-{3,}/.test(lines[i+1])){
+   flushParagraph();closeList();const head=cells(line);i++;
+   let rows='';
+   while(i+1<lines.length&&isTableRow(lines[i+1])){i++;const c=cells(lines[i]);rows+='<tr>'+head.map((_,j)=>`<td>${inline(c[j]||'')}</td>`).join('')+'</tr>';}
+   out+='<div class="doc-table-wrap"><table><thead><tr>'+head.map(c=>`<th>${inline(c)}</th>`).join('')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';continue;
+  }
+  if(h||ul||ol||quote||!trim||/^---+$/.test(trim)){flushParagraph();closeList();}
+  if(h){const n=Math.min(h[1].length,3);out+=`<h${n}>${inline(h[2])}</h${n}>`;}
+  else if(ul||ol){const typ=ul?'ul':'ol';if(list!==typ){closeList();out+=typ==='ul'?'<ul>':'<ol>';list=typ;}out+=`<li>${inline((ul||ol)[1])}</li>`;}
+  else if(quote){out+=`<blockquote>${inline(quote[1])}</blockquote>`;}
+  else if(!trim){}
+  else if(/^---+$/.test(trim))out+='<hr>';
+  else paragraph.push(trim);
  }
- if(list)out+=list==='ul'?'</ul>':'</ol>';return out;
+ flushParagraph();closeList();return out;
 }
 async function openDoc(link){const path=link.getAttribute('data-doc');if(!path)return;docViewer.classList.add('open');docViewer.setAttribute('aria-hidden','false');document.body.classList.add('doc-open');$('#docTitle').textContent=link.textContent.trim();$('#docBody').innerHTML='<p class="doc-loading">Загружаем материал…</p>';try{const response=await fetch(path);if(!response.ok)throw new Error('Не удалось загрузить документ');const md=await response.text();$('#docBody').innerHTML=markdownToHtml(md);}catch(e){$('#docBody').innerHTML='<div class="notice"><b>Материал временно недоступен</b><p>Проверьте подключение к интернету или откройте раздел после загрузки приложения.</p></div>';}}
 document.querySelectorAll('[data-doc]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openDoc(a);}));
+// Дополнительные ссылки, добавленные администратором на этом устройстве.
+try{
+ const customDocs=JSON.parse(localStorage.getItem('myryadom-admin-resources-v1')||'[]');
+ const host=document.getElementById('customDocLinks');
+ if(host&&Array.isArray(customDocs)&&customDocs.length){
+  const heading=document.createElement('h3');heading.textContent='Дополнительно добавленные материалы';host.appendChild(heading);
+  customDocs.forEach(item=>{
+   if(!item||typeof item.title!=='string'||typeof item.url!=='string')return;
+   const p=document.createElement('p'),a=document.createElement('a');a.textContent=item.title;
+   if(item.url.startsWith('./docs/')&&!item.url.includes('..')){a.href=item.url;a.setAttribute('data-doc',item.url);a.addEventListener('click',e=>{e.preventDefault();openDoc(a);});}
+   else if(/^https:\/\//i.test(item.url)){a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';}
+   else return;
+   p.appendChild(a);if(typeof item.description==='string'&&item.description){const d=document.createElement('small');d.textContent=' — '+item.description;p.appendChild(d);}host.appendChild(p);
+  });
+ }
+}catch(e){console.warn('Не удалось загрузить дополнительные материалы',e);}
+
 document.querySelectorAll('[data-doc-close]').forEach(b=>b.addEventListener('click',()=>{docViewer.classList.remove('open');docViewer.setAttribute('aria-hidden','true');document.body.classList.remove('doc-open');}));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&docViewer.classList.contains('open'))document.querySelector('[data-doc-close]').click();});
