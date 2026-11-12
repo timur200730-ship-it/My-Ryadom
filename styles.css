@@ -124,3 +124,12 @@ nav{height:74px;box-shadow:0 -5px 22px rgba(23,43,77,.045);border-top:1px solid 
  .doc-body table{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.page{animation:none}html{scroll-behavior:auto}}
+
+
+/* v1.17: prevent overlap in the learning progress panel */
+.learning-route-link{display:block;width:100%;min-width:0;margin-top:16px;text-decoration:none;white-space:normal;overflow-wrap:anywhere;line-height:1.5;min-height:0;padding:18px 20px}
+.learning-route-link b,.learning-route-link small{display:block;white-space:normal;overflow-wrap:anywhere}
+.learning-route-link b{line-height:1.4;margin-bottom:7px}
+.learning-route-link small{font-size:13px;line-height:1.55;color:#65748b}
+.progress-reset{display:block;max-width:100%;white-space:normal;line-height:1.4;text-align:center;margin-top:14px}
+@media(max-width:700px){.learning-route-link{padding:16px;margin-top:14px}.progress-reset{width:100%}}

@@ -169,7 +169,7 @@ function adult(k){$('#adultText').classList.remove('cabinet-view');document.quer
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>adult(b.dataset.tab));adult('parents');
 $('#reset').onclick=()=>{if(confirm('Сбросить только учебный прогресс на этом устройстве?')){done=[];localStorage.removeItem('myryadom-done-v2');render();}};
 render();
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').hidden=false;});$('#install').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('#install').hidden=true;}};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('#install').hidden=false;});$('#install').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('#install').hidden=true;}};window.addEventListener('appinstalled',()=>{$('#install').hidden=true;deferred=null;});
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 
 // Встроенный просмотр методических материалов без перехода на новую вкладку.
