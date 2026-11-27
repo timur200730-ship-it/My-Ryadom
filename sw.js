@@ -35,7 +35,8 @@ const FILES = [
   './docs/15_LESSON_7_BOUNDARIES_RU.md',
   './docs/16_STUDENT_ROUTE_V1_15_RU.md',
   './docs/17_STUDENT_ROUTE_AND_PWA_V1_16_RU.md',
-  './docs/18_QA_FIXES_V1_18_RU.md'
+  './docs/18_QA_FIXES_V1_18_RU.md',
+  './docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md'
 ];
 
 self.addEventListener('install', event => {
