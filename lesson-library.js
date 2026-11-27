@@ -159,7 +159,7 @@
   $('lessonDetail').addEventListener('click',e=>{const b=e.target.closest('button[data-quiz-question]');if(!b)return;const qi=Number(b.dataset.quizQuestion),ai=Number(b.dataset.quizAnswer);if(!Number.isInteger(qi)||!Number.isInteger(ai))return;quizAnswers[qi]=ai;renderQuiz();});
   $('searchButton').addEventListener('click',renderList);
   $('searchLesson').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();renderList();}});
-  $('ageFilter').addEventListener('change',e=>{age=e.target.value;renderList();if(active.ageVariants)renderDetail();});
+  $('ageFilter').addEventListener('change',e=>{age=e.target.value;renderList();renderDetail();});
   $('printLessonPack').addEventListener('click',()=>{ $('printStatus').textContent='Открой системное окно печати. Чтобы получить PDF, выбери «Сохранить как PDF».'; window.print(); });
   renderList();renderDetail();
   if(typeof window!=='undefined'&&window.location&&window.location.search.includes('mode=student'))$('showStudent').click();
