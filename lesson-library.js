@@ -92,7 +92,7 @@
   try{const old=JSON.parse(localStorage.getItem('myryadom-student-progress-v1')||'{}')||{};const migrate={'recognize-bullying':'safety-respect','group-pressure':'conflict','support-classmate':'safe-school','witness':'witness-support','safe-climate':'responsibility','cyberbullying-action':'online-safety','anger-regulation':'emotions','respectful-class':'words-impact'};Object.entries(old).forEach(([k,v])=>{const parts=k.split('|');if(parts.length===2&&migrate[parts[1]]){const nk=`${parts[0]}|${migrate[parts[1]]}`;if(!studentProgress[nk])studentProgress[nk]=v;}});localStorage.setItem(progressKey,JSON.stringify(studentProgress));}catch(e){}
   try{studentDrafts=JSON.parse(localStorage.getItem(draftKey)||'{}')||{};}catch(e){studentDrafts={};}
   try{const st=JSON.parse(localStorage.getItem(stateKey)||'{}');if(['6–10 лет','11–14 лет','15–18 лет'].includes(st.age))studentAge=st.age;const found=studentLessons.find(t=>t.id===st.trackId);if(found)studentActive=found;}catch(e){}
-  const revisedRouteIds=['safety-respect','conflict','witness-support','words-impact','responsibility','safe-school'];
+  const revisedRouteIds=['safety-respect','boundaries','conflict','emotions','witness-support','online-safety','words-impact','responsibility','help-route','safe-school'];
   function studentKey(track){
     // Revised lesson meanings use a new key; previous progress and drafts remain as history.
     return revisedRouteIds.includes(track.id)?`${studentAge}|${track.id}|v1.21`:`${studentAge}|${track.id}`;
