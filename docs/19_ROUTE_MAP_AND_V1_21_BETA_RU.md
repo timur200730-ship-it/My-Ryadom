@@ -35,14 +35,11 @@
 ## 3. Сохранность прогресса
 
 Для маршрутов, где изменились смысл материала или каноническая привязка, используется отдельный ключ прогресса/черновика с суффиксом `v1.21`:
-- `safety-respect`;
-- `conflict`;
-- `witness-support`;
-- `words-impact`;
-- `responsibility`;
-- `safe-school`.
+- all ten student route keys now use the `v1.21` suffix, because the age-adapted assessment is new for every route;
+- existing progress and draft records remain in local storage as historical records and are not deleted;
+- old completions and answers are not automatically reused for the new age-specific tests.
 
-Старые ключи и записи не удаляются и не засчитываются автоматически как завершение обновлённого содержания. Старые ID материалов сохранены.
+Старые ключи и записи не удаляются и не засчитываются автоматически как завершение обновлённого содержания или новой возрастной проверки. Старые ID материалов сохранены.
 
 ## 4. Дополнительные изменения
 
