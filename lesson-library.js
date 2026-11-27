@@ -54,7 +54,11 @@
   (lessonExtensions.lessons||[]).forEach(extra=>{
     if(!lessons.some(lesson=>lesson.id===extra.id))lessons.push(extra);
   });
-  Object.entries(lessonExtensions.ageQuizzes||{}).forEach(([lessonId,groups])=>{\n    const lesson=lessons.find(item=>item.id===lessonId);\n    if(lesson)lesson.ageQuizzes=groups;\n  });\n  const helpRouteLesson=lessons.find(lesson=>lesson.id==='help-route');
+  Object.entries(lessonExtensions.ageQuizzes||{}).forEach(([lessonId,groups])=>{
+    const lesson=lessons.find(item=>item.id===lessonId);
+    if(lesson)lesson.ageQuizzes=groups;
+  });
+  const helpRouteLesson=lessons.find(lesson=>lesson.id==='help-route');
   if(helpRouteLesson&&lessonExtensions.helpRouteAgeVariants){
     helpRouteLesson.ageVariants=lessonExtensions.helpRouteAgeVariants;
   }
