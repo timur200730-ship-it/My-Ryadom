@@ -50,29 +50,49 @@
     }
   };
   lessons.forEach(lesson=>{if(coreAgeVariants[lesson.id])lesson.ageVariants=coreAgeVariants[lesson.id];});
+  const lessonExtensions=window.MYRYADOM_LESSON_EXTENSIONS||{};
+  (lessonExtensions.lessons||[]).forEach(extra=>{
+    if(!lessons.some(lesson=>lesson.id===extra.id))lessons.push(extra);
+  });
+  const helpRouteLesson=lessons.find(lesson=>lesson.id==='help-route');
+  if(helpRouteLesson&&lessonExtensions.helpRouteAgeVariants){
+    helpRouteLesson.ageVariants=lessonExtensions.helpRouteAgeVariants;
+  }
+  Object.entries(lessonExtensions.agePlans||{}).forEach(([lessonId,plans])=>{
+    const lesson=lessons.find(item=>item.id===lessonId);
+    if(!lesson)return;
+    lesson.ageVariants=lesson.ageVariants||{};
+    Object.entries(plans).forEach(([group,plan])=>{
+      lesson.ageVariants[group]={...(lesson.ageVariants[group]||{}),...plan};
+    });
+  });
   const $=id=>document.getElementById(id); const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let active=lessons[0]; let age='Все возраста';
   const studentTracks=[
-    {id:'safety-respect',title:'Безопасность и уважение',lessonId:'recognize-bullying',direction:'Как распознать травлю и отличить её от конфликта'},
+    {id:'safety-respect',title:'Безопасность и уважение',lessonId:'safe-climate',direction:'Какие правила и действия взрослых помогают каждому чувствовать себя безопаснее'},
     {id:'boundaries',title:'Личные границы и согласие',lessonId:'boundaries-consent',direction:'Как уважать границы и понимать согласие'},
-    {id:'conflict',title:'Конфликт, агрессия и травля',lessonId:'group-pressure',direction:'Почему возникает давление группы и как ему противостоять'},
+    {id:'conflict',title:'Конфликт, агрессия и травля',lessonId:'recognize-bullying',direction:'Как отличить разногласие, повторяющееся давление и опасный эпизод'},
     {id:'emotions',title:'Эмоции и саморегуляция',lessonId:'anger-regulation',direction:'Как управлять гневом и остановить агрессивное поведение'},
-    {id:'witness-support',title:'Свидетель и безопасная поддержка',lessonId:'witness',direction:'Как поддержать одноклассника и не усилить вред'},
+    {id:'witness-support',title:'Свидетель и безопасная поддержка',lessonId:'support-classmate',direction:'Как поддержать одноклассника без давления и риска для себя'},
     {id:'online-safety',title:'Безопасность в интернете',lessonId:'cyberbullying-action',direction:'Что делать при травле и угрозах в сети'},
-    {id:'words-impact',title:'Слова, шутки и последствия',lessonId:'respectful-class',direction:'Как общаться без унижения и давления'},
-    {id:'responsibility',title:'Ответственность и восстановление безопасности',lessonId:'safe-climate',direction:'Какие действия помогают вернуть безопасную среду'},
+    {id:'words-impact',title:'Слова, шутки и последствия',lessonId:'words-impact-core',direction:'Как распознавать унижающие слова и прекращать их'},
+    {id:'responsibility',title:'Ответственность и восстановление безопасности',lessonId:'responsibility-recovery',direction:'Как прекратить прямое и косвенное давление и не допустить мести'},
     {id:'help-route',title:'Маршруты помощи',lessonId:'help-route',direction:'Как обратиться к взрослому и быть услышанным'},
-    {id:'safe-school',title:'Школа, в которой безопаснее',lessonId:'support-classmate',direction:'Как поддержка и действия взрослых меняют школьную среду'}
+    {id:'safe-school',title:'Школа, в которой безопаснее',lessonId:'safe-school-audit',direction:'Как улучшать школьные условия и доступность помощи'}
   ];
   const studentLessons=studentTracks.map(t=>({...t,lesson:lessons.find(l=>l.id===t.lessonId)})).filter(t=>t.lesson);
   const progressKey='myryadom-student-progress-v2',draftKey='myryadom-student-drafts-v2',stateKey='myryadom-student-route-v2';
   let studentAge='6–10 лет',studentActive=studentLessons[0]||null,studentAnswers={},studentTaskDone=false;
   let studentProgress={},studentDrafts={};
   try{studentProgress=JSON.parse(localStorage.getItem(progressKey)||'{}')||{};}catch(e){studentProgress={};}
-  try{const old=JSON.parse(localStorage.getItem('myryadom-student-progress-v1')||'{}')||{};const migrate={'recognize-bullying':'safety-respect','group-pressure':'conflict','support-classmate':'safe-school','cyberbullying-action':'online-safety','anger-regulation':'emotions','respectful-class':'words-impact'};Object.entries(old).forEach(([k,v])=>{const parts=k.split('|');if(parts.length===2&&migrate[parts[1]]){const nk=`${parts[0]}|${migrate[parts[1]]}`;if(!studentProgress[nk])studentProgress[nk]=v;}});localStorage.setItem(progressKey,JSON.stringify(studentProgress));}catch(e){}
+  try{const old=JSON.parse(localStorage.getItem('myryadom-student-progress-v1')||'{}')||{};const migrate={'recognize-bullying':'safety-respect','group-pressure':'conflict','support-classmate':'safe-school','witness':'witness-support','safe-climate':'responsibility','cyberbullying-action':'online-safety','anger-regulation':'emotions','respectful-class':'words-impact'};Object.entries(old).forEach(([k,v])=>{const parts=k.split('|');if(parts.length===2&&migrate[parts[1]]){const nk=`${parts[0]}|${migrate[parts[1]]}`;if(!studentProgress[nk])studentProgress[nk]=v;}});localStorage.setItem(progressKey,JSON.stringify(studentProgress));}catch(e){}
   try{studentDrafts=JSON.parse(localStorage.getItem(draftKey)||'{}')||{};}catch(e){studentDrafts={};}
   try{const st=JSON.parse(localStorage.getItem(stateKey)||'{}');if(['6–10 лет','11–14 лет','15–18 лет'].includes(st.age))studentAge=st.age;const found=studentLessons.find(t=>t.id===st.trackId);if(found)studentActive=found;}catch(e){}
-  function studentKey(track){return `${studentAge}|${track.id}`;}
+  const revisedRouteIds=['safety-respect','conflict','witness-support','words-impact','responsibility','safe-school'];
+  function studentKey(track){
+    // Revised lesson meanings use a new key; previous progress and drafts remain as history.
+    return revisedRouteIds.includes(track.id)?`${studentAge}|${track.id}|v1.21`:`${studentAge}|${track.id}`;
+  }
   function saveStudentState(){try{localStorage.setItem(draftKey,JSON.stringify(studentDrafts));localStorage.setItem(stateKey,JSON.stringify({age:studentAge,trackId:studentActive?.id||studentLessons[0]?.id}));}catch(e){}}
   function saveStudentDraft(){if(!studentActive)return;studentDrafts[studentKey(studentActive)]={answers:studentAnswers,taskDone:studentTaskDone,updatedAt:new Date().toISOString()};saveStudentState();}
   function restoreStudentDraft(){const d=studentDrafts[studentKey(studentActive)]||{};studentAnswers=d.answers&&typeof d.answers==='object'?{...d.answers}:{};studentTaskDone=!!d.taskDone;}
