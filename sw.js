@@ -11,6 +11,7 @@ const FILES = [
   './lesson-builder.js',
   './lesson-library.html',
   './lesson-library.js',
+  './lesson-library-canonical.js',
   './manifest.webmanifest',
   './README.md',
   './assets/icon.svg',
