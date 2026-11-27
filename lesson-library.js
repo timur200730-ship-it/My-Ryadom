@@ -54,7 +54,7 @@
   (lessonExtensions.lessons||[]).forEach(extra=>{
     if(!lessons.some(lesson=>lesson.id===extra.id))lessons.push(extra);
   });
-  const helpRouteLesson=lessons.find(lesson=>lesson.id==='help-route');
+  Object.entries(lessonExtensions.ageQuizzes||{}).forEach(([lessonId,groups])=>{\n    const lesson=lessons.find(item=>item.id===lessonId);\n    if(lesson)lesson.ageQuizzes=groups;\n  });\n  const helpRouteLesson=lessons.find(lesson=>lesson.id==='help-route');
   if(helpRouteLesson&&lessonExtensions.helpRouteAgeVariants){
     helpRouteLesson.ageVariants=lessonExtensions.helpRouteAgeVariants;
   }
@@ -105,7 +105,7 @@
   }
   function renderStudentContent(){
     const host=$('studentLessonContent');if(!host||!studentActive)return;
-    const l=studentActive.lesson,v=l.ageVariants?.[studentAge],qs=l.quiz||[];
+    const l=studentActive.lesson,v=l.ageVariants?.[studentAge],qs=l.ageQuizzes?.[studentAge]||l.quiz||[];
     const quizHtml=qs.map((q,i)=>{const chosen=studentAnswers[i];const feedback=Number.isInteger(chosen)?`<div class="student-feedback" role="status"><b>${chosen===q[2]?'Верно!':'Попробуй ещё раз.'}</b> ${esc(q[3])}</div>`:'';return `<section class="quiz-question"><b>${i+1}. ${esc(q[0])}</b>${q[1].map((o,j)=>`<button type="button" class="student-quiz-option ${chosen===j&&chosen===q[2]?'correct':''}" data-student-question="${i}" data-student-answer="${j}" aria-pressed="${chosen===j}">${esc(o)}</button>`).join('')}${feedback}</section>`;}).join('');
     const allAnswered=qs.length>0&&qs.every((q,i)=>Number.isInteger(studentAnswers[i]));
     const score=qs.reduce((n,q,i)=>n+(studentAnswers[i]===q[2]?1:0),0);
@@ -131,7 +131,7 @@
   let quizAnswers = {};
   function renderQuiz(){
     const host=$('lessonQuiz'); if(!host) return;
-    const qs=active.quiz||[];
+    const qs=(age!=='Все возраста'&&active.ageQuizzes?.[age])?active.ageQuizzes[age]:(active.quiz||[]);
     if(!qs.length){host.innerHTML='<p class="admin-muted">Проверка знаний для этого материала готовится.</p>';return;}
     const answered=qs.filter((q,i)=>Number.isInteger(quizAnswers[i])).length;
     host.innerHTML=qs.map((q,i)=>{
