@@ -1,4 +1,4 @@
-const CACHE = 'my-ryadom-improvements-5';
+const CACHE = 'my-ryadom-improvements-6';
 const CACHE_PREFIX = 'my-ryadom-';
 
 const FILES = [
