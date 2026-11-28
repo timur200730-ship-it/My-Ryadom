@@ -162,4 +162,73 @@ storageContext.localStorage.setItem = () => { throw new Error('storage unavailab
 assert.equal(storageContext.saveProgress(['junior-1']), false, 'Storage write errors must be caught and reported');
 assert.ok(appJs.includes('progressSaveStatus') && appJs.includes('Тема отмечена только до закрытия страницы'), 'User must be told when progress cannot persist');
 
-console.log('PASS: ten routes, 30 age plans, 90 canonical questions, 36 legacy age questions, safe custom-topic rendering, resilient local progress, PWA cache, privacy and document consistency.');
+
+const libraryJs = read('../lesson-library.js');
+const baseMaterialsMatch = libraryJs.match(/const lessons = (\\[[\\s\\S]*?\\n  \\]);\\n  \/\/ Полная возрастная адаптация/);
+assert.ok(baseMaterialsMatch, 'Could not extract base library materials');
+const baseMaterials = vm.runInNewContext(baseMaterialsMatch[1], {}, { timeout: 1500 });
+const canonicalMaterialsMatch = canonicalSource.match(/const lessons = (\\[[\\s\\S]*?\\n  \\]);\\n\\s*window\\.MYRYADOM_LESSON_EXTENSIONS/);
+assert.ok(canonicalMaterialsMatch, 'Could not extract canonical extension materials');
+const canonicalMaterials = vm.runInNewContext(canonicalMaterialsMatch[1], {}, { timeout: 1500 });
+const allMaterialIds = [...baseMaterials, ...canonicalMaterials].map(item => item.id);
+assert.equal(baseMaterials.length, 11, 'The library must retain eleven base materials');
+assert.equal(canonicalMaterials.length, 3, 'The library must retain three canonical extensions');
+assert.equal(allMaterialIds.length, 14, 'The library must contain fourteen materials in total');
+assert.equal(new Set(allMaterialIds).size, 14, 'Material IDs must be unique across base and canonical files');
+const tracksMatch = libraryJs.match(/const studentTracks=(\\[[\\s\\S]*?\\n  \\]);\\n  const studentLessons/);
+assert.ok(tracksMatch, 'Could not extract the ten student route mappings');
+const studentTracks = vm.runInNewContext(tracksMatch[1], {}, { timeout: 1500 });
+assert.equal(studentTracks.length, 10, 'There must be exactly ten student routes');
+assert.equal(new Set(studentTracks.map(track => track.id)).size, 10, 'Student route IDs must be unique');
+assert.equal(new Set(studentTracks.map(track => track.lessonId)).size, 10, 'Each student route must point to a distinct lesson');
+for (const track of studentTracks) {
+  assert.ok(allMaterialIds.includes(track.lessonId), `Route ${track.id} points to missing material ${track.lessonId}`);
+}
+const expectedRouteMap = {
+  'safety-respect':'safe-climate',
+  boundaries:'boundaries-consent',
+  conflict:'recognize-bullying',
+  emotions:'anger-regulation',
+  'witness-support':'support-classmate',
+  'online-safety':'cyberbullying-action',
+  'words-impact':'words-impact-core',
+  responsibility:'responsibility-recovery',
+  'help-route':'help-route',
+  'safe-school':'safe-school-audit'
+};
+for (const [routeId, lessonId] of Object.entries(expectedRouteMap)) {
+  assert.equal(studentTracks.find(track => track.id === routeId)?.lessonId, lessonId, `Unexpected canonical mapping for route ${routeId}`);
+}
+const archiveIds = ['witness', 'digital', 'respectful-class'];
+for (const id of archiveIds) assert.ok(allMaterialIds.includes(id), `Archived material must remain available: ${id}`);
+assert.ok(allMaterialIds.includes('group-pressure'), 'The supplementary group-pressure material must remain available');
+assert.ok(libraryJs.includes("id==='group-pressure'?'Дополнительный материал':'Архивная редакция'"), 'Supplementary and archived materials must have explicit status labels');
+assert.ok(libraryJs.includes('Статус: ${esc(materialStatus(x.id))}') && libraryJs.includes('Статус материала:</b> ${esc(materialStatus(l.id))}'), 'Material status must appear in both list cards and lesson detail');
+assert.equal((libraryJs.match(/if\\(new URLSearchParams\\(window\\.location\\.search\\)\\.get\\('mode'\\)==='student'\\)showStudentMode\\(\\);/g)||[]).length, 1, 'Student deep link must activate student mode exactly once');
+assert.ok(!libraryJs.includes("window.location.search.includes('mode=student')"), 'Legacy second student-mode trigger must be removed');
+const migrationMatch = libraryJs.match(/const migrate=(\\{[^;]+\\});/);
+assert.ok(migrationMatch, 'Legacy progress migration map must be present');
+const migration = vm.runInNewContext(`(${migrationMatch[1]})`, {}, { timeout: 1500 });
+for (const [oldId, routeId] of Object.entries({
+  'safe-climate':'safety-respect',
+  'boundaries-consent':'boundaries',
+  'recognize-bullying':'conflict',
+  'support-classmate':'witness-support',
+  'witness':'witness-support',
+  'cyberbullying-action':'online-safety',
+  'digital':'online-safety',
+  'anger-regulation':'emotions',
+  'respectful-class':'safe-school',
+  'words-impact-core':'words-impact',
+  'responsibility-recovery':'responsibility',
+  'help-route':'help-route',
+  'safe-school-audit':'safe-school'
+})) assert.equal(migration[oldId], routeId, `Legacy progress for ${oldId} must map to ${routeId}`);
+assert.ok(!migration['recognize-bullying']?.includes?.('safety-respect'), 'Old bullying progress must not be assigned to the safety-and-respect route');
+const routeDoc = read('../docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md');
+assert.ok(routeDoc.includes('Инвентаризация всех 14 материалов библиотеки'), 'Route map must document all fourteen materials and their status');
+for (const status of ['Основной маршрут', 'Дополнительный материал', 'Архивная редакция']) {
+  assert.ok(routeDoc.includes(status), `Route map must distinguish material status: ${status}`);
+}
+
+console.log('PASS: ten routes, 30 age plans, 90 canonical questions, 36 legacy age questions, safe custom-topic rendering, resilient local progress, library mapping and status, single student-mode activation, safe custom-topic rendering, resilient local progress, PWA cache, privacy and document consistency.');
