@@ -237,14 +237,14 @@ const adminJs = read('../admin.js');
 
 // XSS regression: malicious custom lesson text must be rendered as text in both app and admin views.
 const attack = '<img src=x onerror=alert(1)>';
-const escapeAppMatch = appJs.match(/function escHtml\\(v\\)\\{[^\\n]+\\}/);
+const escapeAppMatch = appJs.match(/function escHtml\(v\)\{[^\n]+\}/);
 assert.ok(escapeAppMatch, 'Main app HTML escaping helper must exist');
 const escapeAppContext = {};
 vm.runInNewContext(`${escapeAppMatch[0]};globalThis.escapeHtml=escHtml;`, escapeAppContext, { timeout: 1500 });
 const escapedAttack = '&lt;img src=x onerror=alert(1)&gt;';
 assert.equal(escapeAppContext.escapeHtml(attack), escapedAttack, 'Main app must escape HTML metacharacters in custom topic text');
 const renderStart = appJs.indexOf('function render(){');
-const renderEnd = appJs.indexOf('\\nfunction openModule', renderStart);
+const renderEnd = appJs.indexOf('\nfunction openModule', renderStart);
 assert.ok(renderStart >= 0 && renderEnd > renderStart, 'Main topic card renderer must be available for XSS testing');
 const appElements = { progress:{}, bar:{style:{}}, moduleGrid:{}, homeModules:{}, cases:{} };
 const appRenderContext = {
@@ -257,13 +257,13 @@ appRenderContext.runRender();
 assert.ok(appElements.moduleGrid.innerHTML.includes(escapedAttack) && !appElements.moduleGrid.innerHTML.includes(attack), 'Main topic cards must render malicious titles/descriptions as text');
 assert.ok(appElements.homeModules.innerHTML.includes(escapedAttack) && !appElements.homeModules.innerHTML.includes(attack), 'Home topic cards must render malicious titles/descriptions as text');
 
-const adminEscapeMatch = adminJs.match(/function esc\\(s\\)\\{[^\\n]+\\}/);
+const adminEscapeMatch = adminJs.match(/function esc\(s\)\{[^\n]+\}/);
 assert.ok(adminEscapeMatch, 'Admin HTML escaping helper must exist');
 const adminEscapeContext = {};
 vm.runInNewContext(`${adminEscapeMatch[0]};globalThis.escapeHtml=esc;`, adminEscapeContext, { timeout: 1500 });
 assert.equal(adminEscapeContext.escapeHtml(attack), escapedAttack, 'Admin must escape HTML metacharacters in custom lesson text');
 const adminRenderStart = adminJs.indexOf('function renderLessons(){');
-const adminRenderEnd = adminJs.indexOf('\\nfunction resetLesson', adminRenderStart);
+const adminRenderEnd = adminJs.indexOf('\nfunction resetLesson', adminRenderStart);
 assert.ok(adminRenderStart >= 0 && adminRenderEnd > adminRenderStart, 'Admin custom lesson renderer must be available for XSS testing');
 const adminElements = { lessonList:{} };
 const adminRenderContext = {
@@ -276,7 +276,7 @@ assert.ok(adminElements.lessonList.innerHTML.includes(escapedAttack) && !adminEl
 
 // Admin localStorage resilience: invalid JSON, invalid shape, and storage exceptions must not crash initialization.
 const adminLoaderStart = adminJs.indexOf('function validLesson(');
-const adminLoaderEnd = adminJs.indexOf('\\nfunction persistLessons', adminLoaderStart);
+const adminLoaderEnd = adminJs.indexOf('\nfunction persistLessons', adminLoaderStart);
 assert.ok(adminLoaderStart >= 0 && adminLoaderEnd > adminLoaderStart, 'Admin lesson storage loader must be available for testing');
 const adminStorageContext = {
   stored:'not-json',
@@ -303,7 +303,8 @@ const studentStorageContext = {
 vm.runInNewContext(`${libraryJs.slice(studentStorageStart,studentStorageEnd)};globalThis.progress=studentProgress;globalThis.drafts=studentDrafts;`, studentStorageContext, { timeout: 1500 });
 assert.deepEqual(Object.keys(studentStorageContext.progress), [], 'Corrupt student progress must fall back to an empty object');
 assert.deepEqual(Object.keys(studentStorageContext.drafts), [], 'Corrupt student drafts must fall back to an empty object');
-assert.ok(libraryJs.includes('function saveStudentState(){try{') && libraryJs.includes('}catch(e){}}\\n  function saveStudentDraft'), 'Student draft/state writes must be guarded against storage errors');
+assert.ok(libraryJs.includes('function saveStudentState(){try{') && libraryJs.includes('}catch(e){}}
+  function saveStudentDraft'), 'Student draft/state writes must be guarded against storage errors');
 const blockedStudentContext = {
   localStorage:{getItem(){throw new Error('storage unavailable');},setItem(){throw new Error('storage unavailable');}},
   studentLessons:[],studentAge:'6–10 лет',studentActive:null,console:{warn(){}}
@@ -316,8 +317,8 @@ vm.runInNewContext(`${helperSource};globalThis.loadProgress=loadProgress;`, appR
 assert.deepEqual(Array.from(appReadErrorContext.loadProgress()), [], 'Blocked main progress storage reads must return an empty progress list');
 
 // Child-safety regression: instructions must not ask children to collect, copy, or preserve evidence.
-const evidenceDirective = /(?:сохранить|сохрани|сохранять|собрать|собирай|собирать)\\s+(?:необходимые\\s+)?(?:ссылк\\w*|скриншот\\w*|доказательств\\w*|переписк\\w*)/i;
-const explicitAdultBoundary = /не\\s+(?:нужно|обязан|обязана|должен|должна|просите|просить|поручай|поручать|собирайте|собирать|сохраняйте|сохранять|сохранить)[^.!?]{0,120}(?:сохран|собир|скриншот|доказатель)|не\\s+возлагай[^.!?]{0,120}(?:сохран|собир|скриншот|доказатель)/i;
+const evidenceDirective = /(?:сохранить|сохрани|сохранять|собрать|собирай|собирать)\s+(?:необходимые\s+)?(?:ссылк\w*|скриншот\w*|доказательств\w*|переписк\w*)/i;
+const explicitAdultBoundary = /не\s+(?:нужно|обязан|обязана|должен|должна|просите|просить|поручай|поручать|собирайте|собирать|сохраняйте|сохранять|сохранить)[^.!?]{0,120}(?:сохран|собир|скриншот|доказатель)|не\s+возлагай[^.!?]{0,120}(?:сохран|собир|скриншот|доказатель)/i;
 function auditEvidenceInstructions(value, path='material', incorrectQuizOption=false) {
   if (typeof value === 'string') {
     if (evidenceDirective.test(value)) {
@@ -345,7 +346,7 @@ auditEvidenceInstructions(baseMaterials, 'baseMaterials');
 auditEvidenceInstructions(canonicalMaterials, 'canonicalMaterials');
 auditEvidenceInstructions(extension.ageQuizzes, 'ageQuizzes');
 auditEvidenceInstructions(legacyTopics, 'legacyTopics');
-const studentSafetyDocs = [read('../docs/09_STUDENT_WORKSHEETS_RU.md'), read('../docs/07_PARENT_GUIDE_RU.md')].join('\\n');
+const studentSafetyDocs = [read('../docs/09_STUDENT_WORKSHEETS_RU.md'), read('../docs/07_PARENT_GUIDE_RU.md')].join('\n');
 assert.ok(!/реб[её]нок[^.]{0,100}(?:самостоятельно )?(?:собрать|сохранить) доказательств/i.test(studentSafetyDocs), 'Student/parent materials must not assign evidence collection to children');
 assert.ok(/не[^.]{0,100}(?:собирать|сохранить) доказательств/i.test(studentSafetyDocs), 'Student/parent materials must explicitly place evidence handling outside the child role');
 
@@ -355,5 +356,5 @@ assert.ok(/role="dialog" aria-modal="true" aria-labelledby="docTitle"/.test(inde
 assert.ok(/id="docTitle"/.test(indexHtml) && /data-doc-close[^>]*aria-label="Закрыть"/.test(indexHtml), 'Document viewer must have a labelled title and close control');
 assert.ok(/id="searchLesson"[^>]*aria-label="Поиск занятий"/.test(libraryHtml), 'Teacher lesson search must have an accessible label');
 assert.ok(/id="showStudent" aria-pressed="false"/.test(libraryHtml) && /id="showTeacher" aria-pressed="true"/.test(libraryHtml), 'Mode controls must expose pressed state');
-assert.ok(/id="studentAge"/.test(libraryHtml) && /<label>Моя возрастная группа\\s*<select id="studentAge"/.test(libraryHtml), 'Student age selector must have a visible label');
+assert.ok(/id="studentAge"/.test(libraryHtml) && /<label>Моя возрастная группа\s*<select id="studentAge"/.test(libraryHtml), 'Student age selector must have a visible label');
 console.log('PASS: XSS rendering, corrupt localStorage, child-safety instructions, accessibility semantics, ten routes, age plans/quizzes, PWA cache and documentation consistency.');
