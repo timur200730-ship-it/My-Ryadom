@@ -64,7 +64,7 @@ for (const id of ['safety-respect','boundaries','conflict','emotions','witness-s
   assert.ok(libraryJs.includes(`id:'${id}'`), `Missing student route: ${id}`);
 }
 assert.ok(libraryJs.includes('|v1.21'), 'Revised route progress keys must be versioned');
-assert.ok(!/localStorage\\.removeItem\\((?:progressKey|draftKey)/.test(libraryJs), 'Legacy student progress/drafts must not be silently deleted');
+assert.ok(!/localStorage\.removeItem\((?:progressKey|draftKey)/.test(libraryJs), 'Legacy student progress/drafts must not be silently deleted');
 const appJs = read('../app.js');
 for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-student-drafts-v2','myryadom-student-route-v2']) {
   assert.ok(appJs.includes(key), `Full reset must include ${key}`);
@@ -84,7 +84,7 @@ const worksheets = read('../docs/09_STUDENT_WORKSHEETS_RU.md');
 const worksheetCount = (worksheets.match(/^## Лист \d+\./gm) || []).length;
 assert.equal(worksheetCount, 11, 'Worksheet index/count must match the eleven actual worksheets');
 
-const privacyDocs = [read('../README.md'), read('../docs/01_PROJECT_SPEC_RU.md'), read('../docs/04_SOURCES_AND_SAFETY_RU.md')].join('\\n');
+const privacyDocs = [read('../README.md'), read('../docs/01_PROJECT_SPEC_RU.md'), read('../docs/04_SOURCES_AND_SAFETY_RU.md')].join('\n');
 assert.ok(/черновик|черновики/i.test(privacyDocs), 'Privacy documentation must disclose local drafts');
 assert.ok(/ответы.*локал|локал.*ответы/is.test(privacyDocs), 'Privacy documentation must disclose locally stored answers');
 assert.ok(!/локально хранится только список ID|локально хранится только.*ID/i.test(privacyDocs), 'Outdated claim that only completion IDs are stored must be removed');
