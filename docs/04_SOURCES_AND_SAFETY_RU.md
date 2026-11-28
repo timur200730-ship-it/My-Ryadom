@@ -27,8 +27,8 @@
 ## Международная база
 - UNESCO: https://www.unesco.org/en/articles/what-you-need-know-about-school-violence-and-bullying
 - WHO / UNESCO / UNICEF handbook: https://www.who.int/publications/i/item/school-based-violence-prevention-a-practical-handbook
-- Systematic review: https://doi.org/10.1093/her/cyab029
-- Lancet review, 2026: https://www.sciencedirect.com/science/article/pii/S2352464225002147
+- Sadjadi M., Blanchard L., Brülle R., Bonell C. *Barriers and facilitators to the implementation of Health-Promoting School programmes targeting bullying and violence: a systematic review.* Health Education Research. 2021;36(5):581–599. Опубликована онлайн 27.07.2021. DOI: https://doi.org/10.1093/her/cyab029
+- Little M. T. et al. *Interventions to prevent, reduce, and respond to violence against children and adolescents: a systematic review of systematic reviews to update the INSPIRE Framework.* The Lancet Child & Adolescent Health. 2026;10(1):49–61. Опубликована онлайн 07.11.2025; выпуск журнала — январь 2026. DOI: https://doi.org/10.1016/S2352-4642(25)00214-7. Страница издателя: https://www.sciencedirect.com/science/article/pii/S2352464225002147
 
 ## Помощь
 112 — экстренный номер. Детский телефон доверия: 124; 8 800 2000-122. Источник: https://deti.gov.ru/Press-Centr/region-news/20277. Перед запуском проверить доступность и актуальность в Свердловской области.
