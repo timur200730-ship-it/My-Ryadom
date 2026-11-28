@@ -71,7 +71,6 @@ assert.ok(appJs.includes('черновики ученического маршр
 for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-student-drafts-v2','myryadom-student-route-v2','myryadom-student-progress-v1']) {
   assert.ok(appJs.includes(key), `Full reset must include ${key}`);
 }
-}
 
 const sw = read('../sw.js');
 for (const path of ['./lesson-library.html','./lesson-library.js','./lesson-library-canonical.js','./docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md','./docs/20_METHOD_REVIEW_AGE_QUIZZES_AND_LESSON_1_RU.md','./docs/21_EXPERT_SWARM_CHARTER_RU.md','./docs/22_NORMATIVE_REVIEW_2026_11_RU.md']) {
