@@ -202,12 +202,13 @@ for (const [routeId, lessonId] of Object.entries(expectedRouteMap)) {
 const archiveIds = ['witness', 'digital', 'respectful-class'];
 for (const id of archiveIds) assert.ok(allMaterialIds.includes(id), `Archived material must remain available: ${id}`);
 assert.ok(allMaterialIds.includes('group-pressure'), 'The supplementary group-pressure material must remain available');
-assert.ok(libraryJs.includes("id==='group-pressure'?'Дополнительный материал':'Архивная редакция'"), 'Supplementary and archived materials must have explicit status labels');
+assert.ok(libraryJs.includes("new Set(['group-pressure'])") && libraryJs.includes("new Set(['witness','digital','respectful-class'])"), 'Supplementary and archived materials must be explicitly classified');
 assert.ok(libraryJs.includes('Статус: ${esc(materialStatus(x.id))}') && libraryJs.includes('Статус материала:</b> ${esc(materialStatus(l.id))}'), 'Material status must appear in both list cards and lesson detail');
 assert.equal((libraryJs.match(/if\(new URLSearchParams\(window\.location\.search\)\.get\('mode'\)==='student'\)showStudentMode\(\);/g)||[]).length, 1, 'Student deep link must activate student mode exactly once');
 assert.ok(!libraryJs.includes("window.location.search.includes('mode=student')"), 'Legacy second student-mode trigger must be removed');
 const migrationMatch = libraryJs.match(/const migrate=(\{[^;]+\});/);
 assert.ok(migrationMatch, 'Legacy progress migration map must be present');
+assert.ok(!Object.hasOwn(vm.runInNewContext(`(${migrationMatch[1]})`, {}, { timeout: 1500 }), 'group-pressure'), 'Supplementary material must not be migrated as completion of a main student route');
 const migration = vm.runInNewContext(`(${migrationMatch[1]})`, {}, { timeout: 1500 });
 for (const [oldId, routeId] of Object.entries({
   'safe-climate':'safety-respect',
