@@ -86,12 +86,14 @@
   ];
   const studentLessons=studentTracks.map(t=>({...t,lesson:lessons.find(l=>l.id===t.lessonId)})).filter(t=>t.lesson);
   const primaryLessonIds=new Set(studentTracks.map(track=>track.lessonId));
-  const materialStatus=id=>primaryLessonIds.has(id)?'Основной маршрут':id==='group-pressure'?'Дополнительный материал':'Архивная редакция';
+  const supplementaryLessonIds=new Set(['group-pressure']);
+  const archivedLessonIds=new Set(['witness','digital','respectful-class']);
+  const materialStatus=id=>primaryLessonIds.has(id)?'Основной маршрут':supplementaryLessonIds.has(id)?'Дополнительный материал':archivedLessonIds.has(id)?'Архивная редакция':'Дополнительный материал';
   const progressKey='myryadom-student-progress-v2',draftKey='myryadom-student-drafts-v2',stateKey='myryadom-student-route-v2';
   let studentAge='6–10 лет',studentActive=studentLessons[0]||null,studentAnswers={},studentTaskDone=false;
   let studentProgress={},studentDrafts={};
   try{studentProgress=JSON.parse(localStorage.getItem(progressKey)||'{}')||{};}catch(e){studentProgress={};}
-  try{const old=JSON.parse(localStorage.getItem('myryadom-student-progress-v1')||'{}')||{};const migrate={'safe-climate':'safety-respect','boundaries-consent':'boundaries','recognize-bullying':'conflict','group-pressure':'conflict','support-classmate':'witness-support','witness':'witness-support','cyberbullying-action':'online-safety','digital':'online-safety','words-impact-core':'words-impact','respectful-class':'safe-school','responsibility-recovery':'responsibility','help-route':'help-route','safe-school-audit':'safe-school','anger-regulation':'emotions'};Object.entries(old).forEach(([k,v])=>{const parts=k.split('|');if(parts.length===2&&migrate[parts[1]]){const nk=`${parts[0]}|${migrate[parts[1]]}`;if(!studentProgress[nk])studentProgress[nk]=v;}});localStorage.setItem(progressKey,JSON.stringify(studentProgress));}catch(e){}
+  try{const old=JSON.parse(localStorage.getItem('myryadom-student-progress-v1')||'{}')||{};const migrate={'safe-climate':'safety-respect','boundaries-consent':'boundaries','recognize-bullying':'conflict','support-classmate':'witness-support','witness':'witness-support','cyberbullying-action':'online-safety','digital':'online-safety','words-impact-core':'words-impact','respectful-class':'safe-school','responsibility-recovery':'responsibility','help-route':'help-route','safe-school-audit':'safe-school','anger-regulation':'emotions'};Object.entries(old).forEach(([k,v])=>{const parts=k.split('|');if(parts.length===2&&migrate[parts[1]]){const nk=`${parts[0]}|${migrate[parts[1]]}`;if(!studentProgress[nk])studentProgress[nk]=v;}});localStorage.setItem(progressKey,JSON.stringify(studentProgress));}catch(e){}
   try{studentDrafts=JSON.parse(localStorage.getItem(draftKey)||'{}')||{};}catch(e){studentDrafts={};}
   try{const st=JSON.parse(localStorage.getItem(stateKey)||'{}');if(['6–10 лет','11–14 лет','15–18 лет'].includes(st.age))studentAge=st.age;const found=studentLessons.find(t=>t.id===st.trackId);if(found)studentActive=found;}catch(e){}
   const revisedRouteIds=['safety-respect','boundaries','conflict','emotions','witness-support','online-safety','words-impact','responsibility','help-route','safe-school'];
