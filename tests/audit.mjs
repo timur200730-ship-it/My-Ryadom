@@ -104,7 +104,7 @@ const normative = read('../docs/22_NORMATIVE_REVIEW_2026_11_RU.md');
 assert.ok(normative.includes('№ 414') && normative.includes('19.08.2026') && normative.includes('№ 265-ФЗ'), 'Normative review must record 2026 updates');
 
 
-const legacyTopicsMatch = appJs.match(/let topics=(\\[[\\s\\S]*?\\n\\]);\\n\\/\/ Дополнительные учебные темы/);
+const legacyTopicsMatch = appJs.match(/let topics=(\[[\s\S]*?\n\]);\n\/\/ Дополнительные учебные темы/);
 assert.ok(legacyTopicsMatch, 'Could not extract the twelve legacy topics for answer-key audit');
 const legacyTopics = vm.runInNewContext(legacyTopicsMatch[1], {}, { timeout: 1500 });
 assert.equal(legacyTopics.length, 12, 'There must be twelve legacy topics');
