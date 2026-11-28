@@ -163,7 +163,7 @@ assert.equal(storageContext.saveProgress(['junior-1']), false, 'Storage write er
 assert.ok(appJs.includes('progressSaveStatus') && appJs.includes('Тема отмечена только до закрытия страницы'), 'User must be told when progress cannot persist');
 
 
-const libraryJs = read('../lesson-library.js');
+
 const baseMaterialsMatch = libraryJs.match(/const lessons = (\\[[\\s\\S]*?\\n  \\]);\\n  \/\/ Полная возрастная адаптация/);
 assert.ok(baseMaterialsMatch, 'Could not extract base library materials');
 const baseMaterials = vm.runInNewContext(baseMaterialsMatch[1], {}, { timeout: 1500 });
