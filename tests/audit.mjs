@@ -326,14 +326,10 @@ function auditEvidenceInstructions(value, path='material', incorrectQuizOption=f
     return;
   }
   if (Array.isArray(value)) {
-    if (path.endsWith('.quiz') || path.includes('.ageQuizzes')) {
-      for (const [i, question] of value.entries()) {
-        if (Array.isArray(question) && Array.isArray(question[1]) && Number.isInteger(question[2])) {
-          auditEvidenceInstructions(question[0], `${path}[${i}].question`);
-          question[1].forEach((option,j)=>auditEvidenceInstructions(option,`${path}[${i}].option[${j}]`,j!==question[2]));
-          auditEvidenceInstructions(question[3], `${path}[${i}].explanation`);
-        } else auditEvidenceInstructions(question, `${path}[${i}]`);
-      }
+    if (value.length===4 && Array.isArray(value[1]) && Number.isInteger(value[2])) {
+      auditEvidenceInstructions(value[0], `${path}.question`);
+      value[1].forEach((option,j)=>auditEvidenceInstructions(option,`${path}.option[${j}]`,j!==value[2]));
+      auditEvidenceInstructions(value[3], `${path}.explanation`);
     } else value.forEach((item,i)=>auditEvidenceInstructions(item,`${path}[${i}]`));
     return;
   }
