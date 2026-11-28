@@ -95,8 +95,8 @@ assert.ok(!/безопасно сохранить факты|собирать д
 const index = read('../docs/00_DOCS_INDEX_RU.md');
 for (const file of ['19_ROUTE_MAP_AND_V1_21_BETA_RU.md','20_METHOD_REVIEW_AGE_QUIZZES_AND_LESSON_1_RU.md','21_EXPERT_SWARM_CHARTER_RU.md','22_NORMATIVE_REVIEW_2026_11_RU.md']) {
   assert.ok(index.includes(file), `Document index missing ${file}`);
+}
 const normative = read('../docs/22_NORMATIVE_REVIEW_2026_11_RU.md');
 assert.ok(normative.includes('№ 414') && normative.includes('19.08.2026') && normative.includes('№ 265-ФЗ'), 'Normative review must record 2026 updates');
-}
 
 console.log('PASS: ten routes, 30 age plans, 90 questions, PWA cache, privacy and document consistency.');
