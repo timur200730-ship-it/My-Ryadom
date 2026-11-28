@@ -9,7 +9,6 @@
 - Типовая инструкция «Как остановить агрессивное поведение: действия педагога»: https://docs.edu.gov.ru/document/221365db265e9eb95481e7c3c403595a/
 - Минпросвещения, инструкции педагогам, 11.12.2025: https://edu.gov.ru/press/10857/minprosvescheniya-rf-utverdilo-instrukcii-po-deystviyam-pedagogov-v-konfliktnyh-situaciyah/
 - Материалы «Навигатор профилактики» 2026: https://imcvs.profiedu.ru/?section_id=453
-- Типовая инструкция «Как остановить агрессивное поведение: действия педагога», опубликована 27.12.2025: https://docs.edu.gov.ru/document/221365db265e9eb95481e7c3c403595a/
 - Изменения состава территориальной комиссии города Асбеста № 221-РП от 15.05.2026: https://base.garant.ru/414243237/
 
 ## Нормативные источники
@@ -19,7 +18,7 @@
 - Изменения № 265-ФЗ от 26.07.2026 к статье 12 закона № 152-ФЗ: https://www.consultant.ru/document/cons_doc_LAW_540340/
 - Приказ № 576 от 19.08.2026 об изменениях ФОП: https://www.consultant.ru/document/cons_doc_LAW_546716/
 - Статья 41: https://www.consultant.ru/document/cons_doc_LAW_140174/48b9101fff215f3aeb122d86593a129a34d96d3c/
-- Закон № 152-ФЗ: https://mintrud.gov.ru/docs/laws/130
+- Закон № 152-ФЗ, актуальный текст: https://www.consultant.ru/document/Cons_doc_LAW_61801/
 - ФГОС НОО № 286: https://base.garant.ru/400907193/
 - ФГОС ООО № 287: https://base.garant.ru/401433920/
 - ФОП НОО № 372: https://www.consultant.ru/document/cons_doc_LAW_452094/23bf483b86de92dfdfe8d45e45060a9281c071d7/
