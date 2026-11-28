@@ -140,4 +140,23 @@ const resolveLegacyCorrect = (correct, level) => Array.isArray(correct) ? correc
 assert.equal(resolveLegacyCorrect([1, 0, 2], 1), 0, 'Age-specific key selection must use the active age index');
 assert.equal(resolveLegacyCorrect(1, 2), 1, 'Numeric keys for additional admin topics must remain supported');
 
-console.log('PASS: ten routes, 30 age plans, 90 canonical questions, 36 legacy age questions, PWA cache, privacy and document consistency.');
+
+assert.equal((appJs.match(/<b>\\$\\{escHtml\\(t\\.title\\)\\}<\\/b><p>\\$\\{escHtml\\(t\\.desc\\)\\}<\\/p>/g) || []).length, 2, 'Both topic card templates must escape custom titles and descriptions');
+assert.ok(!appJs.includes('<b>${t.title}</b><p>${t.desc}</p>'), 'No topic card may interpolate custom title/description without HTML escaping');
+const helperMatch = appJs.match(/(function loadProgress\\(\\)\\{[\\s\\S]*?\\n\\}\\nfunction saveProgress\\(progress\\)\\{[\\s\\S]*?\\n\\})\\nlet age=/);
+assert.ok(helperMatch, 'Safe progress storage helpers must be present');
+const storageContext = { stored: 'not-json', localStorage: { getItem() { return storageContext.stored; }, setItem(key, value) { storageContext.written = [key, value]; } }, console: { warn() {} } };
+vm.runInNewContext(`${helperMatch[1]};globalThis.loadProgress=loadProgress;globalThis.saveProgress=saveProgress;`, storageContext, { timeout: 1500 });
+assert.deepEqual(Array.from(storageContext.loadProgress()), [], 'Malformed progress JSON must not crash app startup');
+assert.equal(storageContext.stored, 'not-json', 'Malformed progress must not be silently deleted');
+storageContext.stored = JSON.stringify(['junior-1', 42, null, 'middle-2']);
+assert.deepEqual(Array.from(storageContext.loadProgress()), ['junior-1', 'middle-2'], 'Progress loader must retain only string keys');
+storageContext.stored = JSON.stringify({ unexpected: true });
+assert.deepEqual(Array.from(storageContext.loadProgress()), [], 'Non-array progress data must be ignored safely');
+assert.equal(storageContext.saveProgress(['junior-1']), true, 'Progress should save when localStorage is available');
+assert.equal(storageContext.written[0], 'myryadom-done-v2', 'Progress must use the existing storage key');
+storageContext.localStorage.setItem = () => { throw new Error('storage unavailable'); };
+assert.equal(storageContext.saveProgress(['junior-1']), false, 'Storage write errors must be caught and reported');
+assert.ok(appJs.includes('progressSaveStatus') && appJs.includes('Тема отмечена только до закрытия страницы'), 'User must be told when progress cannot persist');
+
+console.log('PASS: ten routes, 30 age plans, 90 canonical questions, 36 legacy age questions, safe custom-topic rendering, resilient local progress, PWA cache, privacy and document consistency.');
