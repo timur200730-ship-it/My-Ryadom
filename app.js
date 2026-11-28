@@ -216,7 +216,7 @@ function markdownToHtml(md){
  }
  flushParagraph();closeList();return out;
 }
-async function openDoc(link){const path=link.getAttribute('data-doc');if(!path)return;docViewer.classList.add('open');docViewer.setAttribute('aria-hidden','false');document.body.classList.add('doc-open');$('#docTitle').textContent=link.textContent.trim();$('#docBody').innerHTML='<p class="doc-loading">Загружаем материал…</p>';try{const response=await fetch(path);if(!response.ok)throw new Error('Не удалось загрузить документ');const md=await response.text();$('#docBody').innerHTML=markdownToHtml(md);}catch(e){$('#docBody').innerHTML='<div class="notice"><b>Материал временно недоступен</b><p>Проверьте подключение к интернету или откройте раздел после загрузки приложения.</p></div>';}}
+async function openDoc(link){const path=link.getAttribute('data-doc');if(!path)return;docOpener=link;docViewer.classList.add('open');docViewer.setAttribute('aria-hidden','false');document.body.classList.add('doc-open');$('#docTitle').textContent=link.textContent.trim();$('#docBody').innerHTML='<p class="doc-loading">Загружаем материал…</p>';docCloseButton.focus();try{const response=await fetch(path);if(!response.ok)throw new Error('Не удалось загрузить документ');const md=await response.text();$('#docBody').innerHTML=markdownToHtml(md);}catch(e){$('#docBody').innerHTML='<div class="notice"><b>Материал временно недоступен</b><p>Проверьте подключение к интернету или откройте раздел после загрузки приложения.</p></div>';}}
 document.querySelectorAll('[data-doc]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();openDoc(a);}));
 // Дополнительные ссылки, добавленные администратором на этом устройстве.
 try{
@@ -235,5 +235,29 @@ try{
  }
 }catch(e){console.warn('Не удалось загрузить дополнительные материалы',e);}
 
-document.querySelectorAll('[data-doc-close]').forEach(b=>b.addEventListener('click',()=>{docViewer.classList.remove('open');docViewer.setAttribute('aria-hidden','true');document.body.classList.remove('doc-open');}));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&docViewer.classList.contains('open'))document.querySelector('[data-doc-close]').click();});
+// Доступное модальное окно: фокус остаётся внутри, Escape закрывает, исходная точка открытия получает фокус обратно.
+let docOpener=null;
+const docDialog=docViewer.querySelector('.doc-dialog');
+const docCloseButton=docViewer.querySelector('.doc-close');
+function closeDoc(){
+ if(!docViewer.classList.contains('open'))return;
+ docViewer.classList.remove('open');
+ docViewer.setAttribute('aria-hidden','true');
+ document.body.classList.remove('doc-open');
+ const opener=docOpener;docOpener=null;
+ if(opener&&opener.isConnected&&typeof opener.focus==='function')opener.focus();
+}
+document.querySelectorAll('[data-doc-close]').forEach(b=>b.addEventListener('click',closeDoc));
+document.addEventListener('keydown',e=>{
+ if(!docViewer.classList.contains('open'))return;
+ if(e.key==='Escape'){e.preventDefault();closeDoc();return;}
+ if(e.key!=='Tab')return;
+ const focusable=Array.from(docDialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter(el=>!el.hidden&&el.getAttribute('aria-hidden')!=='true');
+ if(!focusable.length){e.preventDefault();docDialog.focus();return;}
+ const first=focusable[0],last=focusable[focusable.length-1],active=document.activeElement;
+ if(e.shiftKey&&(active===first||!docDialog.contains(active))){e.preventDefault();last.focus();}
+ else if(!e.shiftKey&&(active===last||!docDialog.contains(active))){e.preventDefault();first.focus();}
+});
+document.addEventListener('focusin',e=>{
+ if(docViewer.classList.contains('open')&&!docDialog.contains(e.target))docCloseButton.focus();
+});
