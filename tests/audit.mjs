@@ -164,10 +164,10 @@ assert.ok(appJs.includes('progressSaveStatus') && appJs.includes('Тема от�
 
 
 
-const baseMaterialsMatch = libraryJs.match(/const lessons = (\\[[\\s\\S]*?\\n  \\]);\\n  \/\/ Полная возрастная адаптация/);
+const baseMaterialsMatch = libraryJs.match(/const lessons = (\[[\s\S]*?\n  \]);\n  \/\/ Полная возрастная адаптация/);
 assert.ok(baseMaterialsMatch, 'Could not extract base library materials');
 const baseMaterials = vm.runInNewContext(baseMaterialsMatch[1], {}, { timeout: 1500 });
-const canonicalMaterialsMatch = canonicalSource.match(/const lessons = (\\[[\\s\\S]*?\\n  \\]);\\n\\s*window\\.MYRYADOM_LESSON_EXTENSIONS/);
+const canonicalMaterialsMatch = canonicalSource.match(/const lessons = (\[[\s\S]*?\n  \]);\n\s*window\.MYRYADOM_LESSON_EXTENSIONS/);
 assert.ok(canonicalMaterialsMatch, 'Could not extract canonical extension materials');
 const canonicalMaterials = vm.runInNewContext(canonicalMaterialsMatch[1], {}, { timeout: 1500 });
 const allMaterialIds = [...baseMaterials, ...canonicalMaterials].map(item => item.id);
@@ -175,7 +175,7 @@ assert.equal(baseMaterials.length, 11, 'The library must retain eleven base mate
 assert.equal(canonicalMaterials.length, 3, 'The library must retain three canonical extensions');
 assert.equal(allMaterialIds.length, 14, 'The library must contain fourteen materials in total');
 assert.equal(new Set(allMaterialIds).size, 14, 'Material IDs must be unique across base and canonical files');
-const tracksMatch = libraryJs.match(/const studentTracks=(\\[[\\s\\S]*?\\n  \\]);\\n  const studentLessons/);
+const tracksMatch = libraryJs.match(/const studentTracks=(\[[\s\S]*?\n  \]);\n  const studentLessons/);
 assert.ok(tracksMatch, 'Could not extract the ten student route mappings');
 const studentTracks = vm.runInNewContext(tracksMatch[1], {}, { timeout: 1500 });
 assert.equal(studentTracks.length, 10, 'There must be exactly ten student routes');
@@ -204,9 +204,9 @@ for (const id of archiveIds) assert.ok(allMaterialIds.includes(id), `Archived ma
 assert.ok(allMaterialIds.includes('group-pressure'), 'The supplementary group-pressure material must remain available');
 assert.ok(libraryJs.includes("id==='group-pressure'?'Дополнительный материал':'Архивная редакция'"), 'Supplementary and archived materials must have explicit status labels');
 assert.ok(libraryJs.includes('Статус: ${esc(materialStatus(x.id))}') && libraryJs.includes('Статус материала:</b> ${esc(materialStatus(l.id))}'), 'Material status must appear in both list cards and lesson detail');
-assert.equal((libraryJs.match(/if\\(new URLSearchParams\\(window\\.location\\.search\\)\\.get\\('mode'\\)==='student'\\)showStudentMode\\(\\);/g)||[]).length, 1, 'Student deep link must activate student mode exactly once');
+assert.equal((libraryJs.match(/if\(new URLSearchParams\(window\.location\.search\)\.get\('mode'\)==='student'\)showStudentMode\(\);/g)||[]).length, 1, 'Student deep link must activate student mode exactly once');
 assert.ok(!libraryJs.includes("window.location.search.includes('mode=student')"), 'Legacy second student-mode trigger must be removed');
-const migrationMatch = libraryJs.match(/const migrate=(\\{[^;]+\\});/);
+const migrationMatch = libraryJs.match(/const migrate=(\{[^;]+\});/);
 assert.ok(migrationMatch, 'Legacy progress migration map must be present');
 const migration = vm.runInNewContext(`(${migrationMatch[1]})`, {}, { timeout: 1500 });
 for (const [oldId, routeId] of Object.entries({
