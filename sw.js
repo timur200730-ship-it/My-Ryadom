@@ -1,4 +1,4 @@
-const CACHE = 'my-ryadom-improvements-7';
+const CACHE = 'my-ryadom-improvements-8';
 const CACHE_PREFIX = 'my-ryadom-';
 
 const FILES = [
@@ -37,7 +37,8 @@ const FILES = [
   './docs/17_STUDENT_ROUTE_AND_PWA_V1_16_RU.md',
   './docs/18_QA_FIXES_V1_18_RU.md',
   './docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md',
-  './docs/20_METHOD_REVIEW_AGE_QUIZZES_AND_LESSON_1_RU.md'
+  './docs/20_METHOD_REVIEW_AGE_QUIZZES_AND_LESSON_1_RU.md',
+  './docs/21_EXPERT_SWARM_CHARTER_RU.md'
 ];
 
 self.addEventListener('install', event => {
