@@ -141,9 +141,15 @@ assert.equal(resolveLegacyCorrect([1, 0, 2], 1), 0, 'Age-specific key selection 
 assert.equal(resolveLegacyCorrect(1, 2), 1, 'Numeric keys for additional admin topics must remain supported');
 
 
-assert.equal((appJs.match(/<b>\\$\\{escHtml\\(t\\.title\\)\\}<\\/b><p>\\$\\{escHtml\\(t\\.desc\\)\\}<\\/p>/g) || []).length, 2, 'Both topic card templates must escape custom titles and descriptions');
+const escapedCardTemplate = '<b>${escHtml(t.title)}</b><p>${escHtml(t.desc)}</p>';
+assert.equal(appJs.split(escapedCardTemplate).length - 1, 2, 'Both topic card templates must escape custom titles and descriptions');
 assert.ok(!appJs.includes('<b>${t.title}</b><p>${t.desc}</p>'), 'No topic card may interpolate custom title/description without HTML escaping');
-const helperMatch = appJs.match(/(function loadProgress\\(\\)\\{[\\s\\S]*?\\n\\}\\nfunction saveProgress\\(progress\\)\\{[\\s\\S]*?\\n\\})\\nlet age=/);
+const helperStart = appJs.indexOf('function loadProgress(){');
+const helperEnd = appJs.indexOf('\nlet age=', helperStart);
+assert.ok(helperStart >= 0 && helperEnd > helperStart, 'Safe progress storage helpers must be present');
+const helperSource = appJs.slice(helperStart, helperEnd);
+const storageContext = { stored: 'not-json', localStorage: { getItem() { return storageContext.stored; }, setItem(key, value) { storageContext.written = [key, value]; } }, console: { warn() {} } };
+vm.runInNewContext(`${helperSource};globalThis.loadProgress=loadProgress;globalThis.saveProgress=saveProgress;`, storageContext, { timeout: 1500 });
 assert.ok(helperMatch, 'Safe progress storage helpers must be present');
 const storageContext = { stored: 'not-json', localStorage: { getItem() { return storageContext.stored; }, setItem(key, value) { storageContext.written = [key, value]; } }, console: { warn() {} } };
 vm.runInNewContext(`${helperMatch[1]};globalThis.loadProgress=loadProgress;globalThis.saveProgress=saveProgress;`, storageContext, { timeout: 1500 });
