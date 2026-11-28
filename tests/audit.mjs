@@ -69,6 +69,7 @@ assert.ok(!/localStorage\.removeItem\((?:progressKey|draftKey)/.test(libraryJs),
 const appJs = read('../app.js');
 for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-student-drafts-v2','myryadom-student-route-v2']) {
   assert.ok(appJs.includes(key), `Full reset must include ${key}`);
+assert.ok(appJs.includes('черновики ученического маршрута'), 'Reset confirmation must specify student route drafts');
 }
 
 const sw = read('../sw.js');
@@ -88,6 +89,8 @@ assert.equal(worksheetCount, 11, 'Worksheet index/count must match the eleven ac
 const privacyDocs = [read('../README.md'), read('../docs/01_PROJECT_SPEC_RU.md'), read('../docs/04_SOURCES_AND_SAFETY_RU.md')].join('\n');
 assert.ok(/черновик|черновики/i.test(privacyDocs), 'Privacy documentation must disclose local drafts');
 assert.ok(/ответы.*локал|локал.*ответы/is.test(privacyDocs), 'Privacy documentation must disclose locally stored answers');
+assert.ok(/календарь школы/i.test(privacyDocs), 'Privacy documentation must disclose locally stored admin calendar');
+assert.ok(/черновики сценариев педагога/i.test(privacyDocs), 'Privacy documentation must disclose teacher scenario drafts');
 assert.ok(!/локально хранится только список ID|локально хранится только.*ID/i.test(privacyDocs), 'Outdated claim that only completion IDs are stored must be removed');
 
 const methodology = read('../docs/02_METHODOLOGY_RU.md');
