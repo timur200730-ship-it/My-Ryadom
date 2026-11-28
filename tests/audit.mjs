@@ -250,7 +250,7 @@ const appElements = { progress:{}, bar:{style:{}}, moduleGrid:{}, homeModules:{}
 const appRenderContext = {
   ageInfo:{junior:{label:'6–10 лет'}}, age:'junior',
   topics:[{title:attack,desc:attack,junior:[],middle:[],senior:[]}], done:[], cases:[],
-  document:{querySelectorAll:()=>[]}, $:(id)=>appElements[id]
+  document:{querySelectorAll:()=>[]}, $:(selector)=>appElements[selector.replace('#','')]
 };
 vm.runInNewContext(`${escapeAppMatch[0]};${appJs.slice(renderStart,renderEnd)};globalThis.runRender=render;`, appRenderContext, { timeout: 1500 });
 appRenderContext.runRender();
