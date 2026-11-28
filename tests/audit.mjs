@@ -81,7 +81,7 @@ const manifest = JSON.parse(read('../manifest.webmanifest'));
 assert.ok(manifest.start_url && manifest.scope, 'PWA manifest must define start_url and scope');
 
 const worksheets = read('../docs/09_STUDENT_WORKSHEETS_RU.md');
-const worksheetCount = (worksheets.match(/^## Лист \\d+\\./gm) || []).length;
+const worksheetCount = (worksheets.match(/^## Лист \d+\./gm) || []).length;
 assert.equal(worksheetCount, 11, 'Worksheet index/count must match the eleven actual worksheets');
 
 const privacyDocs = [read('../README.md'), read('../docs/01_PROJECT_SPEC_RU.md'), read('../docs/04_SOURCES_AND_SAFETY_RU.md')].join('\\n');
