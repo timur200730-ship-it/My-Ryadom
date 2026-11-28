@@ -64,6 +64,7 @@ for (const id of ['safety-respect','boundaries','conflict','emotions','witness-s
   assert.ok(libraryJs.includes(`id:'${id}'`), `Missing student route: ${id}`);
 }
 assert.ok(libraryJs.includes('|v1.21'), 'Revised route progress keys must be versioned');
+assert.ok(libraryJs.includes("new URLSearchParams(window.location.search).get('mode')==='student'"), 'Student deep link must open student mode');
 assert.ok(!/localStorage\.removeItem\((?:progressKey|draftKey)/.test(libraryJs), 'Legacy student progress/drafts must not be silently deleted');
 const appJs = read('../app.js');
 for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-student-drafts-v2','myryadom-student-route-v2']) {
