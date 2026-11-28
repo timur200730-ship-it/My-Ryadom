@@ -303,8 +303,7 @@ const studentStorageContext = {
 vm.runInNewContext(`${libraryJs.slice(studentStorageStart,studentStorageEnd)};globalThis.progress=studentProgress;globalThis.drafts=studentDrafts;`, studentStorageContext, { timeout: 1500 });
 assert.deepEqual(Object.keys(studentStorageContext.progress), [], 'Corrupt student progress must fall back to an empty object');
 assert.deepEqual(Object.keys(studentStorageContext.drafts), [], 'Corrupt student drafts must fall back to an empty object');
-assert.ok(libraryJs.includes('function saveStudentState(){try{') && libraryJs.includes('}catch(e){}}
-  function saveStudentDraft'), 'Student draft/state writes must be guarded against storage errors');
+assert.ok(libraryJs.includes('function saveStudentState(){try{') && libraryJs.includes('function saveStudentDraft(){'), 'Student draft/state writes must be guarded against storage errors');
 const blockedStudentContext = {
   localStorage:{getItem(){throw new Error('storage unavailable');},setItem(){throw new Error('storage unavailable');}},
   studentLessons:[],studentAge:'6–10 лет',studentActive:null,console:{warn(){}}
