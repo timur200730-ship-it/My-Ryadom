@@ -150,9 +150,6 @@ assert.ok(helperStart >= 0 && helperEnd > helperStart, 'Safe progress storage he
 const helperSource = appJs.slice(helperStart, helperEnd);
 const storageContext = { stored: 'not-json', localStorage: { getItem() { return storageContext.stored; }, setItem(key, value) { storageContext.written = [key, value]; } }, console: { warn() {} } };
 vm.runInNewContext(`${helperSource};globalThis.loadProgress=loadProgress;globalThis.saveProgress=saveProgress;`, storageContext, { timeout: 1500 });
-assert.ok(helperMatch, 'Safe progress storage helpers must be present');
-const storageContext = { stored: 'not-json', localStorage: { getItem() { return storageContext.stored; }, setItem(key, value) { storageContext.written = [key, value]; } }, console: { warn() {} } };
-vm.runInNewContext(`${helperMatch[1]};globalThis.loadProgress=loadProgress;globalThis.saveProgress=saveProgress;`, storageContext, { timeout: 1500 });
 assert.deepEqual(Array.from(storageContext.loadProgress()), [], 'Malformed progress JSON must not crash app startup');
 assert.equal(storageContext.stored, 'not-json', 'Malformed progress must not be silently deleted');
 storageContext.stored = JSON.stringify(['junior-1', 42, null, 'middle-2']);
