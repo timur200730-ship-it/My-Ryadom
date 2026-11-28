@@ -121,8 +121,17 @@
     const complete=$('studentComplete');if(complete)complete.addEventListener('click',()=>{if(!allAnswered||!studentTaskDone)return;studentProgress[studentKey(studentActive)]={completedAt:new Date().toISOString(),score,total:qs.length};try{localStorage.setItem(progressKey,JSON.stringify(studentProgress));}catch(e){}renderStudentCards();renderStudentContent();});
   }
   function openStudentLesson(id){const t=studentLessons.find(x=>x.id===id);if(!t)return;studentActive=t;restoreStudentDraft();saveStudentState();renderStudentCards();renderStudentContent();if(window.matchMedia('(max-width:760px)').matches)$('studentLessonContent').scrollIntoView({behavior:'smooth',block:'start'});}
-  $('showStudent').addEventListener('click',()=>{ $('studentMode').hidden=false;$('teacherMode').hidden=true;$('showStudent').setAttribute('aria-pressed','true');$('showTeacher').setAttribute('aria-pressed','false');restoreStudentDraft();renderStudentCards();renderStudentContent();});
-  $('showTeacher').addEventListener('click',()=>{ $('studentMode').hidden=true;$('teacherMode').hidden=false;$('showStudent').setAttribute('aria-pressed','false');$('showTeacher').setAttribute('aria-pressed','true');});
+   function showStudentMode(){
+     $('studentMode').hidden=false;$('teacherMode').hidden=true;
+     $('showStudent').setAttribute('aria-pressed','true');$('showTeacher').setAttribute('aria-pressed','false');
+     restoreStudentDraft();renderStudentCards();renderStudentContent();
+   }
+   function showTeacherMode(){
+     $('studentMode').hidden=true;$('teacherMode').hidden=false;
+     $('showStudent').setAttribute('aria-pressed','false');$('showTeacher').setAttribute('aria-pressed','true');
+   }
+   $('showStudent').addEventListener('click',showStudentMode);
+   $('showTeacher').addEventListener('click',showTeacherMode);
   $('studentAge').value=studentAge;
   $('studentAge').addEventListener('change',e=>{studentAge=e.target.value;restoreStudentDraft();saveStudentState();renderStudentCards();renderStudentContent();});
   $('studentLessonCards').addEventListener('click',e=>{const b=e.target.closest('[data-student-lesson]');if(b)openStudentLesson(b.dataset.studentLesson);});
@@ -166,5 +175,6 @@
   $('ageFilter').addEventListener('change',e=>{age=e.target.value;renderList();renderDetail();});
   $('printLessonPack').addEventListener('click',()=>{ $('printStatus').textContent='Открой системное окно печати. Чтобы получить PDF, выбери «Сохранить как PDF».'; window.print(); });
   renderList();renderDetail();
+   if(new URLSearchParams(window.location.search).get('mode')==='student')showStudentMode();
   if(typeof window!=='undefined'&&window.location&&window.location.search.includes('mode=student'))$('showStudent').click();
 })();
