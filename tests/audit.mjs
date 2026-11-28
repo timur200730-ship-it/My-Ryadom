@@ -167,7 +167,7 @@ assert.ok(appJs.includes('progressSaveStatus') && appJs.includes('Тема от�
 const baseMaterialsMatch = libraryJs.match(/const lessons = (\[[\s\S]*?\n  \]);\n  \/\/ Полная возрастная адаптация/);
 assert.ok(baseMaterialsMatch, 'Could not extract base library materials');
 const baseMaterials = vm.runInNewContext(baseMaterialsMatch[1], {}, { timeout: 1500 });
-const canonicalMaterialsMatch = canonicalSource.match(/const lessons = (\[[\s\S]*?\n  \]);\n\s*window\.MYRYADOM_LESSON_EXTENSIONS/);
+const canonicalMaterialsMatch = canonicalSource.match(/const lessons = (\[[\s\S]*?\n  \]);\n\n  const agePlans/);
 assert.ok(canonicalMaterialsMatch, 'Could not extract canonical extension materials');
 const canonicalMaterials = vm.runInNewContext(canonicalMaterialsMatch[1], {}, { timeout: 1500 });
 const allMaterialIds = [...baseMaterials, ...canonicalMaterials].map(item => item.id);
