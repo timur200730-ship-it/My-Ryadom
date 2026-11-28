@@ -71,7 +71,7 @@ for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-s
 }
 
 const sw = read('../sw.js');
-for (const path of ['./lesson-library.html','./lesson-library.js','./lesson-library-canonical.js','./docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md','./docs/20_METHOD_REVIEW_AGE_QUIZZES_AND_LESSON_1_RU.md']) {
+for (const path of ['./lesson-library.html','./lesson-library.js','./lesson-library-canonical.js','./docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md','./docs/20_METHOD_REVIEW_AGE_QUIZZES_AND_LESSON_1_RU.md','./docs/21_EXPERT_SWARM_CHARTER_RU.md']) {
   assert.ok(sw.includes(path), `Missing offline cache entry: ${path}`);
 }
 assert.ok(/const CACHE = 'my-ryadom-[^']+'/.test(sw), 'Service Worker cache must be versioned');
