@@ -356,4 +356,4 @@ assert.ok(/id="docTitle"/.test(indexHtml) && /data-doc-close[^>]*aria-label="З�
 assert.ok(/id="searchLesson"[^>]*aria-label="Поиск занятий"/.test(libraryHtml), 'Teacher lesson search must have an accessible label');
 assert.ok(/id="showStudent" aria-pressed="false"/.test(libraryHtml) && /id="showTeacher" aria-pressed="true"/.test(libraryHtml), 'Mode controls must expose pressed state');
 assert.ok(/id="studentAge"/.test(libraryHtml) && /<label>Моя возрастная группа\\s*<select id="studentAge"/.test(libraryHtml), 'Student age selector must have a visible label');
-\nconsole.log('PASS: XSS rendering, corrupt localStorage, child-safety instructions, accessibility semantics, ten routes, age plans/quizzes, PWA cache and documentation consistency.');
+console.log('PASS: XSS rendering, corrupt localStorage, child-safety instructions, accessibility semantics, ten routes, age plans/quizzes, PWA cache and documentation consistency.');
