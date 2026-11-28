@@ -352,4 +352,26 @@ assert.ok(/id="docTitle"/.test(indexHtml) && /data-doc-close[^>]*aria-label="З�
 assert.ok(/id="searchLesson"[^>]*aria-label="Поиск занятий"/.test(libraryHtml), 'Teacher lesson search must have an accessible label');
 assert.ok(/id="showStudent" aria-pressed="false"/.test(libraryHtml) && /id="showTeacher" aria-pressed="true"/.test(libraryHtml), 'Mode controls must expose pressed state');
 assert.ok(/id="studentAge"/.test(libraryHtml) && /<label>Моя возрастная группа\s*<select id="studentAge"/.test(libraryHtml), 'Student age selector must have a visible label');
-console.log('PASS: XSS rendering, corrupt localStorage, child-safety instructions, accessibility semantics, ten routes, age plans/quizzes, PWA cache and documentation consistency.');
+// Document dialog keyboard accessibility and focus lifecycle.
+assert.ok(/let docOpener=null/.test(appJs), 'Document viewer must remember the invoking control');
+assert.ok(/docOpener=link/.test(appJs) && /docCloseButton\.focus\(\)/.test(appJs), 'Opening a document must move focus into the dialog');
+assert.ok(/function closeDoc\(\)/.test(appJs) && /opener\.focus\(\)/.test(appJs), 'Closing a document must restore focus to its opener');
+assert.ok(/e\.key==='Escape'/.test(appJs) && /e\.key!=='Tab'/.test(appJs), 'Dialog must support Escape and trap Tab navigation');
+assert.ok(/e\.shiftKey/.test(appJs) && /docDialog\.contains\(active\)/.test(appJs), 'Dialog must contain forward and reverse keyboard focus');
+assert.ok(/addEventListener\('focusin'/.test(appJs), 'Programmatic focus must not escape the open modal');
+assert.ok(/aria-modal="true"[^>]*tabindex="-1"/.test(indexHtml), 'Dialog container must be programmatically focusable');
+
+// Versioning and bibliographic regression checks.
+const readmeDoc = read('../README.md');
+const docsIndex = read('../docs/00_DOCS_INDEX_RU.md');
+const fullProgram = read('../docs/08_FULL_LESSON_PROGRAM_RU.md');
+const sourcesDoc = read('../docs/04_SOURCES_AND_SAFETY_RU.md');
+const routeMapDoc = read('../docs/19_ROUTE_MAP_AND_V1_21_BETA_RU.md');
+assert.ok(/^# МЫ РЯДОМ — PWA, рабочая редакция v1\.21-beta/m.test(readmeDoc), 'README must identify the current application working version');
+assert.ok(readmeDoc.includes('История изменений') && readmeDoc.includes('Номера `0.3–1.18` относятся к прежним этапам'), 'Historical README versions must be explicitly separated from the current version');
+assert.ok(docsIndex.includes('Текущая рабочая редакция приложения:** `v1.21-beta`'), 'Document index must state the current application version');
+assert.ok(fullProgram.includes('Историческая редакция комплекта:** 0.5') && fullProgram.includes('не версия PWA'), 'Lesson-program material version must be distinguished from the application version');
+assert.ok(routeMapDoc.includes('Текущая рабочая редакция приложения:** `v1.21-beta`'), 'Route map must distinguish current branch status from its v1.18 base');
+assert.ok(sourcesDoc.includes('Опубликована онлайн 27.07.2021') && sourcesDoc.includes('10.1093/her/cyab029'), 'Systematic review DOI and online publication date must be recorded');
+assert.ok(sourcesDoc.includes('Опубликована онлайн 07.11.2025') && sourcesDoc.includes('выпуск журнала — январь 2026') && sourcesDoc.includes('10.1016/S2352-4642(25)00214-7'), 'Lancet online and issue dates must both be recorded with the DOI');
+console.log('PASS: XSS rendering, corrupt localStorage, child-safety instructions, dialog focus lifecycle, version history, bibliography, accessibility semantics, ten routes, age plans/quizzes, PWA cache and documentation consistency.');
