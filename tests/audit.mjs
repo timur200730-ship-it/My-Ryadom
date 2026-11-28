@@ -67,9 +67,10 @@ assert.ok(libraryJs.includes('|v1.21'), 'Revised route progress keys must be ver
 assert.ok(libraryJs.includes("new URLSearchParams(window.location.search).get('mode')==='student'"), 'Student deep link must open student mode');
 assert.ok(!/localStorage\.removeItem\((?:progressKey|draftKey)/.test(libraryJs), 'Legacy student progress/drafts must not be silently deleted');
 const appJs = read('../app.js');
-for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-student-drafts-v2','myryadom-student-route-v2']) {
-  assert.ok(appJs.includes(key), `Full reset must include ${key}`);
 assert.ok(appJs.includes('черновики ученического маршрута'), 'Reset confirmation must specify student route drafts');
+for (const key of ['myryadom-done-v2','myryadom-student-progress-v2','myryadom-student-drafts-v2','myryadom-student-route-v2','myryadom-student-progress-v1']) {
+  assert.ok(appJs.includes(key), `Full reset must include ${key}`);
+}
 }
 
 const sw = read('../sw.js');
