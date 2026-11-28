@@ -103,4 +103,41 @@ for (const file of ['19_ROUTE_MAP_AND_V1_21_BETA_RU.md','20_METHOD_REVIEW_AGE_QU
 const normative = read('../docs/22_NORMATIVE_REVIEW_2026_11_RU.md');
 assert.ok(normative.includes('№ 414') && normative.includes('19.08.2026') && normative.includes('№ 265-ФЗ'), 'Normative review must record 2026 updates');
 
-console.log('PASS: ten routes, 30 age plans, 90 questions, PWA cache, privacy and document consistency.');
+
+const legacyTopicsMatch = appJs.match(/let topics=(\\[[\\s\\S]*?\\n\\]);\\n\\/\/ Дополнительные учебные темы/);
+assert.ok(legacyTopicsMatch, 'Could not extract the twelve legacy topics for answer-key audit');
+const legacyTopics = vm.runInNewContext(legacyTopicsMatch[1], {}, { timeout: 1500 });
+assert.equal(legacyTopics.length, 12, 'There must be twelve legacy topics');
+const expectedLegacyKeys = [
+  [1, 1, 2], // Безопасная школа
+  [1, 1, 1], // Конфликт или травля?
+  [1, 1, 2], // Формы агрессии
+  [1, 1, 1], // Мои эмоции
+  [1, 1, 1], // Личные границы
+  [1, 0, 1], // Сила группы
+  [1, 0, 1], // Я свидетель
+  [1, 1, 1], // Цифровая безопасность
+  [1, 1, 1], // Если обижают меня
+  [1, 1, 1], // Если я причинил вред
+  [1, 1, 1], // Взрослый рядом
+  [1, 1, 2]  // Наш безопасный класс
+];
+let legacyQuestionCount = 0;
+for (const [topicIndex, topic] of legacyTopics.entries()) {
+  assert.equal(topic.quiz.length, 3, `Expected three age questions in legacy topic ${topicIndex + 1}`);
+  assert.equal(topic.options.length, 3, `Expected three age option groups in legacy topic ${topicIndex + 1}`);
+  const actualKeys = Array.isArray(topic.correct) ? topic.correct : [topic.correct, topic.correct, topic.correct];
+  assert.deepEqual(actualKeys, expectedLegacyKeys[topicIndex], `Wrong answer keys in legacy topic: ${topic.title}`);
+  for (let ageIndex = 0; ageIndex < 3; ageIndex++) {
+    assert.equal(topic.options[ageIndex].length, 3, `Expected three options: ${topic.title} / age ${ageIndex}`);
+    assert.ok(Number.isInteger(actualKeys[ageIndex]) && actualKeys[ageIndex] >= 0 && actualKeys[ageIndex] < topic.options[ageIndex].length, `Answer key out of range: ${topic.title} / age ${ageIndex}`);
+    legacyQuestionCount++;
+  }
+}
+assert.equal(legacyQuestionCount, 36, 'All 36 legacy age-specific questions must be checked');
+assert.ok(appJs.includes('Array.isArray(t.correct)?t.correct[level]:t.correct'), 'Quiz handler must select an age-specific key while preserving numeric legacy keys');
+const resolveLegacyCorrect = (correct, level) => Array.isArray(correct) ? correct[level] : correct;
+assert.equal(resolveLegacyCorrect([1, 0, 2], 1), 0, 'Age-specific key selection must use the active age index');
+assert.equal(resolveLegacyCorrect(1, 2), 1, 'Numeric keys for additional admin topics must remain supported');
+
+console.log('PASS: ten routes, 30 age plans, 90 canonical questions, 36 legacy age questions, PWA cache, privacy and document consistency.');
