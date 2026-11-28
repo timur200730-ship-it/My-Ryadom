@@ -127,7 +127,7 @@ for (const [topicIndex, topic] of legacyTopics.entries()) {
   assert.equal(topic.quiz.length, 3, `Expected three age questions in legacy topic ${topicIndex + 1}`);
   assert.equal(topic.options.length, 3, `Expected three age option groups in legacy topic ${topicIndex + 1}`);
   const actualKeys = Array.isArray(topic.correct) ? topic.correct : [topic.correct, topic.correct, topic.correct];
-  assert.deepEqual(actualKeys, expectedLegacyKeys[topicIndex], `Wrong answer keys in legacy topic: ${topic.title}`);
+  assert.deepEqual(Array.from(actualKeys), expectedLegacyKeys[topicIndex], `Wrong answer keys in legacy topic: ${topic.title}`);
   for (let ageIndex = 0; ageIndex < 3; ageIndex++) {
     assert.equal(topic.options[ageIndex].length, 3, `Expected three options: ${topic.title} / age ${ageIndex}`);
     assert.ok(Number.isInteger(actualKeys[ageIndex]) && actualKeys[ageIndex] >= 0 && actualKeys[ageIndex] < topic.options[ageIndex].length, `Answer key out of range: ${topic.title} / age ${ageIndex}`);
