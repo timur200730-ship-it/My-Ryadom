@@ -22,6 +22,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check audit script syntax
+        run: node --check tests/audit.mjs
       - name: Check JavaScript syntax
         run: |
           node --check app.js
